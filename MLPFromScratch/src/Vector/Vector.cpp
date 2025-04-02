@@ -18,6 +18,10 @@ double& Vector::operator[](size_t index) { return values[index]; }
 const double& Vector::operator[](size_t index) const { return values[index]; }
 
 double Vector::dot(const Vector& other) const {
+    if (values.size() != other.size()) {
+        throw std::invalid_argument("Vector dimensions must match.");
+    }
+
     double result = 0;
     for (size_t i = 0; i < values.size(); i++) {
         result += values[i] * other[i];

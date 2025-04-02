@@ -36,6 +36,12 @@ TEST_CASE("Vector Dot Product", "[Vector]") {
     REQUIRE(v1.dot(v2) == 6);
 }
 
+TEST_CASE("Vector Invalid Dot Product, ", "[Vector]") {
+    Vector v1(3, 1);
+    Vector v2(4, 2);
+    REQUIRE_THROWS_AS(v1.dot(v2), std::invalid_argument);
+}
+
 TEST_CASE("Vector Addition", "[Vector]") {
     Vector v1(3, 1);
     Vector v2(3, 2);
