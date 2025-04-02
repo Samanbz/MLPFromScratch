@@ -1,12 +1,30 @@
-﻿# CMakeList.txt : CMake project for MLPFromScratch, include source and define
-# project specific logic here.
-#
+﻿cmake_minimum_required(VERSION 3.10)
+project(MLPFromScratch)
 
-# Add source to this project's executable.
-add_executable (MLPFromScratch "MLPFromScratch.cpp" "MLPFromScratch.h" "src/Vector/Vector.cpp" "src/Vector/Vector.h")
+# Set C++ standard
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-if (CMAKE_VERSION VERSION_GREATER 3.12)
-  set_property(TARGET MLPFromScratch PROPERTY CXX_STANDARD 20)
-endif()
+# Add main executable (without test files)
+add_executable(MLPFromScratch 
+    "MLPFromScratch.cpp" 
+    "MLPFromScratch.h"
+    "src/Vector/Vector.cpp" 
+    "src/Vector/Vector.h"
+)
 
-# TODO: Add tests and install targets if needed.
+# Add test executable (separate)
+add_executable(MLPFromScratchTest 
+    "MLPFromScratchTest.cpp"
+    "src/Vector/Vector.cpp" 
+    "src/Vector/Vector.h"
+    "src/Vector/Vector.test.cpp"
+)
+
+# Add include directories for both targets
+target_include_directories(MLPFromScratch PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(MLPFromScratchTest PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+# Add include directories for finding Vector.h
+target_include_directories(MLPFromScratch PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
+target_include_directories(MLPFromScratchTest PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
