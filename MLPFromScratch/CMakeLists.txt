@@ -11,7 +11,10 @@ add_executable(MLPFromScratch
     "MLPFromScratch.h"
     "src/Vector/Vector.cpp" 
     "src/Vector/Vector.h"
- "src/Matrix/Matrix.h" "src/Matrix/Matrix.cpp")
+    "src/Matrix/Matrix.h" 
+    "src/Matrix/Matrix.cpp" 
+    "src/Neuron/Neuron.h" 
+    "src/Neuron/Neuron.cpp" "src/Layer/Layer.h" "src/Layer/Layer.cpp")
 
 # Add test executable (separate)
 add_executable(MLPFromScratchTest 
@@ -19,7 +22,11 @@ add_executable(MLPFromScratchTest
     "src/Vector/Vector.cpp" 
     "src/Vector/Vector.h"
     "src/Vector/Vector.test.cpp"
- "src/Matrix/Matrix.h" "src/Matrix/Matrix.cpp" "src/Matrix/Matrix.test.cpp")
+    "src/Matrix/Matrix.h" 
+    "src/Matrix/Matrix.cpp" 
+    "src/Matrix/Matrix.test.cpp" 
+    "src/Neuron/Neuron.h" 
+    "src/Neuron/Neuron.cpp" "src/Neuron/Neuron.test.cpp" "src/Layer/Layer.h" "src/Layer/Layer.cpp" "src/Layer/Layer.test.cpp")
 
 # Add include directories for both targets
 target_include_directories(MLPFromScratch PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
