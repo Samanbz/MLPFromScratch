@@ -23,8 +23,7 @@ TEST_CASE("Vector Construction", "[Vector]") {
     REQUIRE(v3[2] == 3);
 
     std::vector<double> values2 = {1, 2, 3};
-    Vector v4(3, values2);
-    REQUIRE(v4.size() == 3);
+    Vector v4(values2);
     REQUIRE(v4[0] == 1);
     REQUIRE(v4[1] == 2);
     REQUIRE(v4[2] == 3);

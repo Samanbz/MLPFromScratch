@@ -9,7 +9,7 @@ Vector::Vector(size_t size, double value) : values(size, value){};
 
 Vector::Vector(size_t size, double* values) : values(values, values + size){};
 
-Vector::Vector(size_t size, std::vector<double> values) : values(values){};
+Vector::Vector(std::vector<double> values) : values(values){};
 
 size_t Vector::size() const { return values.size(); }
 
