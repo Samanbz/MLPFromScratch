@@ -99,6 +99,15 @@ TEST_CASE("Matrix Invalid Multiplication", "[Matrix]") {
     REQUIRE_THROWS_AS(m1 * m2, std::invalid_argument);
 }
 
+TEST_CASE("Matrix Vector Multiplication", "[Matrix]") {
+    Matrix m1({{1, 2, 3}, {4, 5, 6}});
+    Vector v1({1, 2, 3});
+    Vector v2 = m1 * v1;
+    REQUIRE(v2.size() == 2);
+    REQUIRE(v2[0] == 14);
+    REQUIRE(v2[1] == 32);
+}
+
 TEST_CASE("Matrix Scalar Multiplication", "[Matrix]") {
     Matrix m1({{1, 2, 3}, {4, 5, 6}});
     Matrix m2 = m1 * 2;

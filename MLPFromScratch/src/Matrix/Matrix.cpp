@@ -68,6 +68,18 @@ Matrix Matrix::operator*(const Matrix& other) const {
     return result;
 }
 
+Vector Matrix::operator*(const Vector& vector) const {
+    if (cols_ != vector.size()) {
+        throw std::invalid_argument("Matrix and vector dimensions must match.");
+    }
+
+    Vector result(rows_);
+    for (size_t i = 0; i < rows_; i++) {
+        result[i] = values[i].dot(vector);
+    }
+    return result;
+}
+
 Matrix Matrix::operator*(double scalar) const {
     Matrix result(rows_, cols_);
     for (size_t i = 0; i < rows_; i++) {
