@@ -3,13 +3,15 @@
 #include <format>
 #include <iostream>
 
-Vector::Vector(size_t size) : values(size){};
+#include "../Matrix/Matrix.h"
 
-Vector::Vector(size_t size, double value) : values(size, value){};
+Vector::Vector(size_t size) : values(size) {};
 
-Vector::Vector(size_t size, double* values) : values(values, values + size){};
+Vector::Vector(size_t size, double value) : values(size, value) {};
 
-Vector::Vector(std::vector<double> values) : values(values){};
+Vector::Vector(size_t size, double* values) : values(values, values + size) {};
+
+Vector::Vector(std::vector<double> values) : values(values) {};
 
 size_t Vector::size() const { return values.size(); }
 
@@ -49,6 +51,53 @@ Vector Vector::operator*(double scalar) const {
     Vector result(values.size());
     for (size_t i = 0; i < values.size(); i++) {
         result[i] = values[i] * scalar;
+    }
+    return result;
+}
+
+Vector Vector::elem_mult(const Vector& other) const {
+    if (values.size() != other.size()) {
+        throw std::invalid_argument("Vector dimensions must match.");
+    }
+    Vector result(values.size());
+    for (size_t i = 0; i < values.size(); i++) {
+        result[i] = values[i] * other[i];
+    }
+    return result;
+}
+
+Vector Vector::square() const {
+    Vector result(values.size());
+    for (size_t i = 0; i < values.size(); i++) {
+        result[i] = values[i] * values[i];
+    }
+    return result;
+}
+
+double Vector::sum() const {
+    double result = 0;
+    for (size_t i = 0; i < values.size(); i++) {
+        result += values[i];
+    }
+    return result;
+}
+
+Vector Vector::apply(std::function<double(double)> func) const {
+    Vector result(values.size());
+
+    for (size_t i = 0; i < values.size(); i++) {
+        result[i] = func(values[i]);
+    }
+
+    return result;
+}
+
+Matrix Vector::outer_product(const Vector& other) const {
+    Matrix result(values.size(), other.size());
+    for (size_t i = 0; i < values.size(); i++) {
+        for (size_t j = 0; j < other.size(); j++) {
+            result.at(i, j) = values[i] * other[j];
+        }
     }
     return result;
 }

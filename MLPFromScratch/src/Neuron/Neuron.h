@@ -1,8 +1,10 @@
 #pragma once
 
+#include <functional>
 #include <string>
 
 #include "../Vector/Vector.h"
+
 /**
  * Represents a neuron in the multi-layer perceptron.
  */
@@ -20,6 +22,13 @@ public:
     Neuron(const Vector& initial_weights, double initial_bias);
 
     /**
+     * Forward pass through the neuron.
+     * @param neuron input
+     * @returns the output of the forward pass
+     */
+    double forward(const Vector& input);
+
+    /**
      * Applies the activation function to the neuron's value.
      * @param z the value to be activated
      * @returns the activated value
@@ -34,21 +43,14 @@ public:
     double activation_derivative(double z) const;
 
     /**
-     * Forward pass through the neuron.
-     * @param neuron input
-     * @returns the output of the forward pass
-     */
-    double forward(const Vector& input);
-
-    /**
-     * @returns the output of the neuron if
+     * @returns the output of the neuron
      */
     double get_output() const;
 
     /**
      * @returns the value of z
      */
-    double get_z() const;
+    double get_pre_activation() const;
 
     /**
      * @returns the weights of the neuron

@@ -2,6 +2,8 @@
 
 #include <stdexcept>
 
+#include "../Functions/Activation.h"
+
 Neuron::Neuron(size_t input_size) : weights(input_size), bias(0), output(-1), z(-1) {
     // Initialize weights with random values
     for (size_t i = 0; i < input_size; ++i) {
@@ -16,17 +18,6 @@ Neuron::Neuron(const Vector& initial_weights, double initial_bias)
     }
 }
 
-double Neuron::activate(double z) const {
-    // Sigmoid activation function
-    return 1.0 / (1.0 + exp(-z));
-}
-
-double Neuron::activation_derivative(double z) const {
-    // Derivative of the sigmoid function
-    double activated_value = activate(z);
-    return activated_value * (1 - activated_value);
-}
-
 double Neuron::forward(const Vector& input) {
     if (input.size() != weights.size()) {
         throw std::invalid_argument("Input size must match weights size.");
@@ -38,7 +29,7 @@ double Neuron::forward(const Vector& input) {
 
 double Neuron::get_output() const { return output; }
 
-double Neuron::get_z() const { return z; }
+double Neuron::get_pre_activation() const { return z; }
 
 Vector Neuron::get_weights() const { return weights; }
 
@@ -51,3 +42,7 @@ std::string Neuron::to_string() const {
     result += "\tOutput: " + std::to_string(output) + "\n";
     return result;
 }
+
+double Neuron::activate(double z) const { return Activation::sigmoid(z); }
+
+double Neuron::activation_derivative(double z) const { return Activation::sigmoid_derivative(z); }

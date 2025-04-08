@@ -7,14 +7,14 @@ TEST_CASE("Neuron Construction", "[Neuron]") {
     REQUIRE(n1.get_weights().size() == 3);
     REQUIRE(n1.get_bias() == 0);
     REQUIRE(n1.get_output() == -1);
-    REQUIRE(n1.get_z() == -1);
+    REQUIRE(n1.get_pre_activation() == -1);
 
     Vector initial_weights({0.5, 0.5, 0.5});
     Neuron n2(initial_weights, 0.5);
     REQUIRE(n2.get_weights().size() == 3);
     REQUIRE(n2.get_bias() == 0.5);
     REQUIRE(n2.get_output() == -1);
-    REQUIRE(n2.get_z() == -1);
+    REQUIRE(n2.get_pre_activation() == -1);
 }
 
 TEST_CASE("Neuron Activation", "[Neuron]") {
@@ -56,7 +56,7 @@ TEST_CASE("Neuron Getters", "[Neuron]") {
     Vector input({1.0, 2.0, 3.0});
     n.forward(input);
     REQUIRE(n.get_output() > 0);
-    REQUIRE(n.get_z() > 0);
+    REQUIRE(n.get_pre_activation() > 0);
     REQUIRE(n.get_weights().size() == 3);
     REQUIRE(n.get_bias() == 0);
 }

@@ -1,7 +1,12 @@
 #pragma once
 
+#include <functional>
+#include <stdexcept>
 #include <string>
 #include <vector>
+
+// Forward declaration of Matrix class
+class Matrix;
 
 /**
  * @brief Represents a vector of real numbers.
@@ -53,6 +58,7 @@ public:
      *
      * @param index The index of the element to return.
      * @returns The element at the given index.
+     * @throws std::out_of_range if the index is out of bounds.
      */
     double& operator[](size_t index);
 
@@ -61,6 +67,7 @@ public:
      *
      * @param index The index of the element to return.
      * @returns The element at the given index.
+     * @throws std::out_of_range if the index is out of bounds.
      */
     const double& operator[](size_t index) const;
 
@@ -69,6 +76,7 @@ public:
      *
      * @param other The other vector to compute the dot product with.
      * @returns The dot product of the two vectors.
+     * @throws std::invalid_argument if the vectors have different sizes.
      */
     double dot(const Vector& other) const;
 
@@ -77,6 +85,7 @@ public:
      *
      * @param other The other vector to compute the sum with.
      * @returns The sum of the two vectors.
+     * @throws std::invalid_argument if the vectors have different sizes.
      */
     Vector operator+(const Vector& other) const;
 
@@ -85,6 +94,7 @@ public:
      *
      * @param other The other vector to compute the difference with.
      * @returns The difference of the two vectors.
+     * @throws std::invalid_argument if the vectors have different sizes.
      */
     Vector operator-(const Vector& other) const;
 
@@ -95,6 +105,45 @@ public:
      * @returns The product of the vector and the scalar.
      */
     Vector operator*(double scalar) const;
+
+    /**
+     * @brief Computes the element-wise multiplication of this vector with another vector.
+     *
+     * @param other The other vector to compute the element-wise multiplication with.
+     * @returns A new vector containing the element-wise product.
+     * @throws std::invalid_argument if the vectors have different sizes.
+     */
+    Vector elem_mult(const Vector& other) const;
+
+    /**
+     * @brief returns the element-wise squared Vector.
+     *
+     * @param vector to be squared.
+     * @returns The Vector squared element-wise.
+     */
+    Vector square() const;
+
+    /**
+     * @brief Computes the sum of all elements in the vector.
+     *
+     * @returns The sum of all elements in the vector.
+     */
+    double sum() const;
+
+    /**
+     * @brief Applies a function to all elements in the vector.
+     *
+     * @returns A new vector containing the results of applying the function to each element.
+     */
+    Vector apply(std::function<double(double)> func) const;
+
+    /**
+     * @brief Computes the outer product of this vector with another vector.
+     *
+     * @param other The other vector to compute the outer product with.
+     * @returns A new matrix representing the outer product of the two vectors.
+     */
+    Matrix outer_product(const Vector& other) const;
 
     /**
      * @brief Returns the string representation of this vector.

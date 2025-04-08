@@ -1,10 +1,10 @@
 #include "Matrix.h"
 
 Matrix::Matrix(size_t rows, size_t cols)
-    : rows_(rows), cols_(cols), values(std::vector(rows, Vector(cols))){};
+    : rows_(rows), cols_(cols), values(std::vector(rows, Vector(cols))) {};
 
 Matrix::Matrix(size_t rows, size_t cols, double value)
-    : rows_(rows), cols_(cols), values(std::vector(rows, Vector(cols, value))){};
+    : rows_(rows), cols_(cols), values(std::vector(rows, Vector(cols, value))) {};
 
 Matrix::Matrix(std::vector<std::vector<double>> values)
     : rows_(values.size()),
