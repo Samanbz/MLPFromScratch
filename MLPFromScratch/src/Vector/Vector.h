@@ -14,6 +14,11 @@ class Matrix;
 class Vector {
 public:
     /**
+     * @brief default constructor that initializes an empty vector.
+     */
+    Vector();
+
+    /**
      * @brief Creates a new vector with the given size.
      *
      * @param size The size of the vector.
@@ -45,6 +50,13 @@ public:
      * @param values The values to initialize all elements to.
      */
     Vector(std::vector<double> values);
+
+    /**
+     * @brief initializes a random vector with values within a given range
+     *
+     * @param range of the random values
+     */
+    Vector static random(double min, double max);
 
     /**
      * @brief Returns the size of the vector.
@@ -107,6 +119,13 @@ public:
     Vector operator*(double scalar) const;
 
     /**
+     * @brief returns the values of the vector.
+     *
+     * @returns the underlying vector.
+     */
+    std::vector<double> get_values() const;
+
+    /**
      * @brief Computes the element-wise multiplication of this vector with another vector.
      *
      * @param other The other vector to compute the element-wise multiplication with.
@@ -151,6 +170,14 @@ public:
      * @returns The string representation of this vector.
      */
     std::string to_string() const;
+
+    /**
+     * @brief Checks if two vectors are equal.
+     *
+     * @param other vector to compare with.
+     * @returns true if the vectors are equal, false otherwise.
+     */
+    bool operator==(const Vector& other) const;
 
 private:
     std::vector<double> values;

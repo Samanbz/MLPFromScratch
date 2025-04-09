@@ -5,6 +5,8 @@
 
 #include "../Matrix/Matrix.h"
 
+Vector::Vector() : values(0) {};
+
 Vector::Vector(size_t size) : values(size) {};
 
 Vector::Vector(size_t size, double value) : values(size, value) {};
@@ -12,6 +14,13 @@ Vector::Vector(size_t size, double value) : values(size, value) {};
 Vector::Vector(size_t size, double* values) : values(values, values + size) {};
 
 Vector::Vector(std::vector<double> values) : values(values) {};
+
+Vector Vector::random(double min, double max) {
+    Vector result(1);
+    result.values[0] =
+        min + static_cast<double>(rand()) / (static_cast<double>(RAND_MAX / (max - min)));
+    return result;
+}
 
 size_t Vector::size() const { return values.size(); }
 
@@ -66,6 +75,8 @@ Vector Vector::elem_mult(const Vector& other) const {
     return result;
 }
 
+std::vector<double> Vector::get_values() const { return this->values; }
+
 Vector Vector::square() const {
     Vector result(values.size());
     for (size_t i = 0; i < values.size(); i++) {
@@ -112,4 +123,16 @@ std::string Vector::to_string() const {
     }
     result += "]";
     return result;
+}
+
+bool Vector::operator==(const Vector& other) const {
+    if (values.size() != other.size()) {
+        return false;
+    }
+    for (size_t i = 0; i < values.size(); i++) {
+        if (values[i] != other[i]) {
+            return false;
+        }
+    }
+    return true;
 }

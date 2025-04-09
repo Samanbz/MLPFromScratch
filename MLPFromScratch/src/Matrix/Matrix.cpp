@@ -1,5 +1,9 @@
 #include "Matrix.h"
 
+#include "../Exceptions/DimensionException.h"
+
+Matrix::Matrix() : rows_(0), cols_(0), values(std::vector<Vector>()) {}
+
 Matrix::Matrix(size_t rows, size_t cols)
     : rows_(rows), cols_(cols), values(std::vector(rows, Vector(cols))) {};
 
@@ -31,7 +35,7 @@ const double& Matrix::at(size_t row, size_t col) const { return values[row][col]
 
 Matrix Matrix::operator+(const Matrix& other) const {
     if (rows_ != other.rows() || cols_ != other.cols()) {
-        throw std::invalid_argument("Matrix dimensions must match.");
+        throw DimensionException(rows_, cols_, other.rows(), other.cols());
     }
 
     Matrix result(rows_, cols_);
@@ -43,7 +47,7 @@ Matrix Matrix::operator+(const Matrix& other) const {
 
 Matrix Matrix::operator-(const Matrix& other) const {
     if (rows_ != other.rows() || cols_ != other.cols()) {
-        throw std::invalid_argument("Matrix dimensions must match.");
+        throw DimensionException(rows_, cols_, other.rows(), other.cols());
     }
 
     Matrix result(rows_, cols_);
@@ -55,7 +59,7 @@ Matrix Matrix::operator-(const Matrix& other) const {
 
 Matrix Matrix::operator*(const Matrix& other) const {
     if (cols_ != other.rows()) {
-        throw std::invalid_argument("Matrix dimensions must match.");
+        throw DimensionException(rows_, cols_, other.rows(), other.cols());
     }
 
     Matrix result(rows_, other.cols());
@@ -70,7 +74,7 @@ Matrix Matrix::operator*(const Matrix& other) const {
 
 Vector Matrix::operator*(const Vector& vector) const {
     if (cols_ != vector.size()) {
-        throw std::invalid_argument("Matrix and vector dimensions must match.");
+        throw DimensionException(rows_, cols_, vector.size(), 1);
     }
 
     Vector result(rows_);
@@ -108,4 +112,16 @@ std::string Matrix::to_string() const {
     }
     result += "\n]";
     return result;
+}
+
+bool Matrix::operator==(const Matrix& other) const {
+    if (rows_ != other.rows() || cols_ != other.cols()) {
+        return false;
+    }
+    for (size_t i = 0; i < rows_; i++) {
+        if (values[i] != other[i]) {
+            return false;
+        }
+    }
+    return true;
 }
