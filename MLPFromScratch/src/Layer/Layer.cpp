@@ -61,5 +61,15 @@ Matrix Layer::get_weights() const {
     for (size_t i = 0; i < neuron_count; ++i) {
         weights[i] = neurons[i].get_weights();
     }
-    return weights;
+    return weights.transpose();
+}
+
+void Layer::update_weights(const Matrix& weight_delta, double learning_rate) {
+    Matrix weight_delta_t = weight_delta.transpose();
+    if (weight_delta_t.rows() != neuron_count || weight_delta_t.cols() != input_size) {
+        throw std::invalid_argument("Weight delta size must match layer size.");
+    }
+    for (size_t i = 0; i < neuron_count; i++) {
+        neurons[i].update_weights(weight_delta_t[i], learning_rate);
+    }
 }

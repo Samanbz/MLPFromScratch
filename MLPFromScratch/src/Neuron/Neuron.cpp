@@ -33,6 +33,13 @@ double Neuron::get_pre_activation() const { return z; }
 
 Vector Neuron::get_weights() const { return weights; }
 
+void Neuron::update_weights(const Vector& weight_delta, double learning_rate) {
+    if (weight_delta.size() != weights.size()) {
+        throw std::invalid_argument("Weight delta size must match weights size.");
+    }
+    weights = weights - (weight_delta * learning_rate);
+}
+
 double Neuron::get_bias() const { return bias; }
 
 std::string Neuron::to_string() const {

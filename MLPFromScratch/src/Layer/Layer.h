@@ -95,7 +95,25 @@ public:
      */
     void set_delta(const Vector& delta);
 
+    /**
+     * @brief Returns the weights of the layer.
+     *
+     * The weights are represented as a matrix, where each row corresponds to a neuron
+     * and each column corresponds to an input feature.
+     *
+     * @return Matrix The weights of the layer.
+     */
     Matrix get_weights() const;
+
+    /**
+     * @brief Updates the weights of the layer based on the provided weight delta.
+     *
+     * This method applies the weight delta to the weights of the neurons in the layer.
+     *
+     * @param weight_delta The weight delta to apply to the layer's weights.
+     * @param learning_rate The learning rate to use for the weight update.
+     */
+    void update_weights(const Matrix& weight_delta, double learning_rate);
 
 private:
     size_t neuron_count;
