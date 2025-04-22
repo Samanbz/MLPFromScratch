@@ -1,18 +1,20 @@
 #include "Neuron.h"
 
+#include <iostream>
 #include <stdexcept>
-
-#include "../Functions/Activation.h"
-
-Neuron::Neuron(size_t input_size) : weights(input_size), bias(0), output(-1), z(-1) {
+Neuron::Neuron(size_t input_size, Activation activation)
+    : weights(input_size), bias(0), output(0), z(0), activation(activation) {
     // Initialize weights with random values
     for (size_t i = 0; i < input_size; ++i) {
-        weights[i] = static_cast<double>(rand()) / RAND_MAX;
+        weights[i] = (rand() / (double)RAND_MAX) * sqrt(2.0 / input_size);
+        {
+        }
     }
+    std::cout << "Neuron initialized with weights: " << weights.to_string() << std::endl;
 }
 
-Neuron::Neuron(const Vector& initial_weights, double initial_bias)
-    : weights(initial_weights), bias(initial_bias), output(-1), z(-1) {
+Neuron::Neuron(const Vector& initial_weights, double initial_bias, Activation activation)
+    : weights(initial_weights), bias(initial_bias), output(0), z(0), activation(activation) {
     if (initial_weights.size() == 0) {
         throw std::invalid_argument("Weights vector cannot be empty.");
     }
@@ -23,7 +25,7 @@ double Neuron::forward(const Vector& input) {
         throw std::invalid_argument("Input size must match weights size.");
     }
     z = weights.dot(input) + bias;
-    output = activate(z);
+    output = activation(z);
     return output;
 }
 
@@ -33,14 +35,37 @@ double Neuron::get_pre_activation() const { return z; }
 
 Vector Neuron::get_weights() const { return weights; }
 
-void Neuron::update_weights(const Vector& weight_delta, double learning_rate) {
-    if (weight_delta.size() != weights.size()) {
-        throw std::invalid_argument("Weight delta size must match weights size.");
+void Neuron::update_weights(const Vector& gradient, double learning_rate) {
+    if (gradient.size() != weights.size()) {
+        throw std::invalid_argument("Weight gradient size must match weights size.");
     }
-    weights = weights - (weight_delta * learning_rate);
+
+    Vector clipped_gradient = clip_gradient(gradient, 1);
+    this->weight_gradient = clipped_gradient;
+
+    weights = weights - (clipped_gradient * learning_rate);
+    for (double weight : weights.get_values()) {
+        if (std::isnan(weight) || std::isinf(weight)) {
+            throw std::invalid_argument("Weight update resulted in NaN or Inf.");
+        }
+    }
+}
+
+Vector Neuron::clip_gradient(const Vector& gradient, double clip_threshold) {
+    double clip_factor = clip_threshold / gradient.norm();
+    if (clip_factor < 1.0) {
+        Vector clipped_gradient = gradient * clip_factor;
+        /*  std::cout << "Clipping gradient: " << gradient.to_string() << " -> "
+                    << clipped_gradient.to_string() << "Norm: " << gradient.norm()
+                    << " Clip facotr: " << clip_factor << std::endl;*/
+        return clipped_gradient;
+    }
+    return gradient;
 }
 
 double Neuron::get_bias() const { return bias; }
+
+Vector Neuron::get_weight_gradient() const { return weight_gradient; }
 
 std::string Neuron::to_string() const {
     std::string result = "Neuron:\n";
@@ -49,7 +74,3 @@ std::string Neuron::to_string() const {
     result += "\tOutput: " + std::to_string(output) + "\n";
     return result;
 }
-
-double Neuron::activate(double z) const { return Activation::sigmoid(z); }
-
-double Neuron::activation_derivative(double z) const { return Activation::sigmoid_derivative(z); }

@@ -3,6 +3,7 @@
 #include <functional>
 #include <string>
 
+#include "../Functions/Activation.h"
 #include "../Vector/Vector.h"
 
 /**
@@ -14,14 +15,14 @@ public:
      * Initializes the neuron with random initial weights.
      * @param input_size The number of incoming connections to the neuron.
      */
-    Neuron(size_t input_size);
+    Neuron(size_t input_size, Activation activation);
 
     /**
      * Initializes the neuron with initial weights and bias.
      * @param initial_weights The initial weights of the neuron.
      * @param initial_bias The initial bias of the neuron.
      */
-    Neuron(const Vector& initial_weights, double initial_bias);
+    Neuron(const Vector& initial_weights, double initial_bias, Activation activation);
 
     /**
      * Performs a forward pass through the neuron.
@@ -29,20 +30,6 @@ public:
      * @returns The output of the forward pass.
      */
     double forward(const Vector& input);
-
-    /**
-     * Applies the activation function to the neuron's value.
-     * @param z The value to be activated.
-     * @returns The activated value.
-     */
-    double activate(double z) const;
-
-    /**
-     * Applies the derivative of the activation function to the neuron's value.
-     * @param z The value to be differentiated.
-     * @returns The value of the derivative at z.
-     */
-    double activation_derivative(double z) const;
 
     /**
      * Retrieves the output of the neuron after the forward pass.
@@ -63,11 +50,11 @@ public:
     Vector get_weights() const;
 
     /**
-     * Updates the weights of the neuron using the provided weight delta and learning rate.
-     * @param weight_delta The change to be applied to the weights.
+     * Updates the weights of the neuron using the provided weight gradient and learning rate.
+     * @param gradient The gradient to update the weights.
      * @param learning_rate The learning rate to scale the weight update. Defaults to 0.01.
      */
-    void update_weights(const Vector& weight_delta, double learning_rate);
+    void update_weights(const Vector& gradient, double learning_rate);
 
     /**
      * Retrieves the bias of the neuron.
@@ -76,14 +63,24 @@ public:
     double get_bias() const;
 
     /**
+     * .
+     */
+    Vector get_weight_gradient() const;
+
+    /**
      * Converts the neuron to a string representation.
      * @returns A string representation of the neuron's state.
      */
     std::string to_string() const;
 
 private:
-    Vector weights;  /// The weights of the neuron.
-    double bias;     /// The bias of the neuron.
-    double output;   /// The output of the neuron after activation. Defaults to -1.
-    double z;        /// The pre-activation value of the neuron. Defaults to -1.
+    Vector clip_gradient(const Vector& gradient, double clip_threshold);
+
+    Vector weights;         /// The weights of the neuron.
+    double bias;            /// The bias of the neuron.
+    double output;          /// The output of the neuron after activation. Defaults to -1.
+    double z;               /// The pre-activation value of the neuron. Defaults to -1.
+    Activation activation;  /// The activation function of the neuron.
+
+    Vector weight_gradient;  /// The gradient of the weights.
 };
