@@ -4,7 +4,10 @@
 #include <iostream>
 #include <vector>
 
+#include "../Functions/Activation.h"
+#include "../Functions/Loss.h"
 #include "../Layer/Layer.h"
+#include "../Matrix/Matrix.h"
 #include "../Vector/Vector.h"
 
 class MLP {
@@ -14,7 +17,18 @@ public:
      * @param layer_sizes A vector containing the sizes of each layer in the network.
      * @throws std::invalid_argument if the number of layers is less than 2.
      */
-    MLP(std::vector<size_t> layer_sizes);
+    MLP(std::vector<size_t> layer_sizes, std::vector<Activation> layer_activations,
+        Loss loss_function);
+
+    /**
+     * @brief Initializes a new MLP with specified initial Weights.
+     * @param layer_sizes A vector containing the sizes of each layer in the network.
+     * @param initial_weights A vector of matrices representing the initial weights for each layer.
+     * @throws std::invalid_argument if the number of layers is less than 2 or if the sizes of the
+     * matrices does not match.
+     */
+    MLP(std::vector<size_t> layer_sizes, std::vector<Matrix> init_weights,
+        std::vector<Activation> layer_activations, Loss loss_function);
 
     /**
      * @brief Performs a forward pass through the network.
@@ -48,36 +62,29 @@ public:
      */
     std::vector<Layer> get_layers() const { return layers; }
 
+    /**
+     * @brief Sets the learning rate.
+     * @param Learning rate
+     */
     void set_learning_rate(double learning_rate) { this->learning_rate = learning_rate; }
 
 private:
-    /**
-     * @brief Computes the loss between the network output and the target output.
-     * @param output The output vector from the network.
-     * @param target The target output vector.
-     * @return The computed loss value.
-     */
-    double loss(const Vector& output, const Vector& target);
+    Vector compute_output_gradient(const Vector& target);
 
-    /**
-     * @brief Computes the derivative of the loss with respect to the output.
-     * @param output The output vector from the network.
-     * @param target The target output vector.
-     * @return The vector of loss derivatives.
-     */
-    Vector loss_derivative(const Vector& output, const Vector& target);
+    Matrix compute_weight_gradient(const Vector& layer_output, const Vector& layer_gradient);
 
-    Vector compute_output_delta(const Vector& target);
+    Vector compute_layer_gradient(size_t layer_idx);
 
-    Matrix compute_weight_delta(const Vector& layer_output, const Vector& layer_delta);
-
-    Vector compute_layer_delta(size_t layer_idx);
+    void validate_init(std::vector<size_t> layer_sizes, std::vector<Activation> layer_activations,
+                       Loss loss_function);
 
     size_t input_size;
     size_t output_size;
 
     Vector input;
     std::vector<Layer> layers;
+
+    Loss loss_function;
 
     double learning_rate = 0.01;
 };

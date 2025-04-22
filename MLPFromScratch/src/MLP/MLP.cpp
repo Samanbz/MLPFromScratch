@@ -5,12 +5,28 @@
 #include "../Functions/Activation.h"
 #include "../Functions/Loss.h"
 
-MLP::MLP(std::vector<size_t> layer_sizes) {
-    if (layer_sizes.empty() || layer_sizes.size() < 2) {
-        throw std::invalid_argument("MLP must have at least 2 layers (input and output).");
-    }
-    if (layer_sizes[0] == 0 || layer_sizes.back() == 0) {
-        throw std::invalid_argument("Input and output layer sizes must be greater than 0.");
+MLP::MLP(std::vector<size_t> layer_sizes, std::vector<Activation> layer_activations,
+         Loss loss_function)
+    : loss_function(loss_function) {
+    validate_init(layer_sizes, layer_activations, loss_function);
+
+    input_size = layer_sizes[0];
+    output_size = layer_sizes.back();
+
+    input = Vector(input_size);
+
+    layers.reserve(layer_sizes.size() - 1);
+    for (size_t i = 1; i < layer_sizes.size(); i++) {
+        layers.emplace_back(layer_sizes[i - 1], layer_sizes[i], layer_activations[i - 1]);
+    };
+}
+
+MLP::MLP(std::vector<size_t> layer_sizes, std::vector<Matrix> init_weights,
+         std::vector<Activation> layer_activations, Loss loss_function)
+    : loss_function(loss_function) {
+    validate_init(layer_sizes, layer_activations, loss_function);
+    if (layer_sizes.size() - 1 != init_weights.size()) {
+        throw std::invalid_argument("Number of layers must match number of initial weights.");
     }
 
     input_size = layer_sizes[0];
@@ -20,7 +36,8 @@ MLP::MLP(std::vector<size_t> layer_sizes) {
 
     layers.reserve(layer_sizes.size() - 1);
     for (size_t i = 1; i < layer_sizes.size(); i++) {
-        layers.emplace_back(layer_sizes[i - 1], layer_sizes[i]);
+        layers.emplace_back(layer_sizes[i - 1], layer_sizes[i], init_weights[i - 1],
+                            layer_activations[i - 1]);
     };
 }
 
@@ -31,42 +48,41 @@ Vector MLP::forward(const Vector& input) {
 
     this->input = input;
 
-    Vector output(input_size);
     layers[0].forward(input);
     for (size_t i = 1; i < layers.size(); i++) {
-        output = layers[i].forward(layers[i - 1].get_outputs());
+        layers[i].forward(layers[i - 1].get_outputs());
     }
 
-    return output;
+    return layers.back().get_outputs();
 }
 
 double MLP::backward(const Vector& target) {
     Layer& output_layer = layers.back();
 
-    double loss = this->loss(output_layer.get_outputs(), target);
+    double loss = this->loss_function(output_layer.get_outputs(), target);
 
-    Vector output_delta = compute_output_delta(target);
+    Vector output_gradient = compute_output_gradient(target);
 
-    Matrix output_weight_delta =
-        compute_weight_delta(layers[layers.size() - 2].get_outputs(), output_delta);
+    Matrix output_weight_gradient =
+        compute_weight_gradient(layers[layers.size() - 2].get_outputs(), output_gradient);
 
-    output_layer.update_weights(output_weight_delta, learning_rate);
+    output_layer.update_weights(output_weight_gradient, learning_rate);
 
     for (size_t i = layers.size() - 1; i-- > 0;) {
         Layer& layer = layers[i];
         Layer& next_layer = layers[i + 1];
 
-        Vector layer_delta = compute_layer_delta(i);
+        Vector layer_gradient = compute_layer_gradient(i);
 
-        Matrix weight_delta;
+        Matrix gradient;
         if (i > 0) {
             Layer& prev_layer = layers[i - 1];
-            weight_delta = compute_weight_delta(prev_layer.get_outputs(), layer_delta);
+            gradient = compute_weight_gradient(prev_layer.get_outputs(), layer_gradient);
         } else {
-            weight_delta = compute_weight_delta(input, layer_delta);
+            gradient = compute_weight_gradient(input, layer_gradient);
         }
 
-        layer.update_weights(weight_delta, learning_rate);
+        layer.update_weights(gradient, learning_rate);
     }
 
     return loss;
@@ -78,55 +94,50 @@ void MLP::train(const std::vector<Vector>& inputs, const std::vector<Vector>& ta
         throw std::invalid_argument("Number of inputs and targets must match.");
     }
 
-    double epoch_loss = 0;
     for (size_t epoch = 0; epoch < epochs; epoch++) {
+        double epoch_loss = 0;
         for (size_t i = 0; i < inputs.size(); ++i) {
-            forward(inputs[i]);
-            epoch_loss = backward(targets[i]);
+            Vector out = forward(inputs[i]);
+            double loss = backward(targets[i]);
+            epoch_loss += loss;
         }
         if (log_interval > 0 && (epoch + 1) % log_interval == 0) {
-            std::cout << "Epoch " << epoch + 1 << ", Loss: " << epoch_loss << std::endl;
+            std::cout << "Epoch " << epoch + 1 << ", Avg Loss: " << epoch_loss / inputs.size()
+                      << std::endl;
         }
     }
 }
 
-double MLP::loss(const Vector& output, const Vector& target) {
-    if (output.size() != target.size()) {
-        throw std::invalid_argument("Output size (" + std::to_string(output.size()) +
-                                    ") does not match target size (" +
-                                    std::to_string(target.size()) + ").");
+void MLP::validate_init(std::vector<size_t> layer_sizes, std::vector<Activation> layer_activations,
+                        Loss loss_function) {
+    if (layer_sizes.empty() || layer_sizes.size() < 2) {
+        throw std::invalid_argument("MLP must have at least 2 layers (input and output).");
     }
-
-    return Loss::mean_squared_error(output, target);
+    if (layer_sizes[0] == 0 || layer_sizes.back() == 0) {
+        throw std::invalid_argument("Input and output layer sizes must be greater than 0.");
+    }
+    if (layer_sizes.size() - 1 != layer_activations.size()) {
+        throw std::invalid_argument("Number of layers must match number of activations.");
+    }
 }
 
-Vector MLP::loss_derivative(const Vector& output, const Vector& target) {
-    if (output.size() != target.size()) {
-        throw std::invalid_argument("Output size (" + std::to_string(output.size()) +
-                                    ") does not match target size (" +
-                                    std::to_string(target.size()) + ").");
-    }
-
-    return Loss::mean_squared_error_derivative(output, target);
-}
-
-Vector MLP::compute_output_delta(const Vector& target) {
+Vector MLP::compute_output_gradient(const Vector& target) {
     Layer& output_layer = layers.back();
 
-    Vector output_delta = output_layer.get_pre_activations()
-                              .apply(Activation::sigmoid_derivative)
-                              .elem_mult(this->loss_derivative(output_layer.get_outputs(), target));
+    Vector output_gradient =
+        output_layer.activation_derivative(output_layer.get_pre_activations())
+            .elem_mult(this->loss_function.derivative(target, output_layer.get_outputs()));
 
-    output_layer.set_delta(output_delta);
+    output_layer.set_gradient(output_gradient);
 
-    return output_delta;
+    return output_gradient;
 }
 
-Matrix MLP::compute_weight_delta(const Vector& layer_output, const Vector& layer_delta) {
-    return layer_output.outer_product(layer_delta);
+Matrix MLP::compute_weight_gradient(const Vector& layer_output, const Vector& layer_gradient) {
+    return layer_gradient.outer_product(layer_output);
 }
 
-Vector MLP::compute_layer_delta(size_t layer_idx) {
+Vector MLP::compute_layer_gradient(size_t layer_idx) {
     if (layer_idx >= layers.size() - 1) {
         throw std::out_of_range("Layer index out of range.");
     }
@@ -134,11 +145,11 @@ Vector MLP::compute_layer_delta(size_t layer_idx) {
     Layer& layer = layers[layer_idx];
     Layer& next_layer = layers[layer_idx + 1];
 
-    Vector layer_delta =
-        (next_layer.get_weights() * next_layer.get_delta())
-            .elem_mult(layer.get_pre_activations().apply(Activation::sigmoid_derivative));
+    Vector layer_gradient =
+        (next_layer.get_weights().transpose() * next_layer.get_gradient())
+            .elem_mult(layer.activation_derivative(layer.get_pre_activations()));
 
-    layer.set_delta(layer_delta);
+    layer.set_gradient(layer_gradient);
 
-    return layer_delta;
+    return layer_gradient;
 }
