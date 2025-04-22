@@ -1,3 +1,5 @@
+#pragma once
+
 class DimensionException : public std::invalid_argument {
 public:
     DimensionException(const size_t rows_num1, const size_t cols_num1, const size_t rows_num2,
