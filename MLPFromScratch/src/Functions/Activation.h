@@ -46,4 +46,7 @@ namespace ActivationFunctions {
     inline Activation softmax([](double x) { return std::exp(x); },
                               [](double x) { return x * (1.0 - x); });
 
+    // Linear
+    inline Activation linear([](double x) { return x; }, [](double x) { return 1.0; });
+
 }  // namespace ActivationFunctions

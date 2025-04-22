@@ -5,4 +5,8 @@
 
 #include <iostream>
 
+#include "./Vector/Vector.h"
+#include "./src/Functions/Activation.h"
+#include "./src/Functions/Loss.h"
+#include "./src/MLP/MLP.h"
 // TODO: Reference additional headers your program requires here.
