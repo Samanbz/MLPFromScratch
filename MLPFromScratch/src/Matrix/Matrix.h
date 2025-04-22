@@ -1,5 +1,6 @@
 #pragma once
 
+#include <initializer_list>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -37,6 +38,12 @@ public:
      * @param values The vector of vector of doubles to initialize the matrix with.
      */
     Matrix(std::vector<std::vector<double>> values);
+
+    /**
+     * @brief Creates a Matrix object from an initializer list of initializer lists of doubles.
+     * @param values The initializer list of initializer lists to initialize the matrix with.
+     */
+    Matrix(std::initializer_list<std::initializer_list<double>> values);
 
     /**
      * @brief Returns the number of rows in the matrix.

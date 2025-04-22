@@ -11,7 +11,9 @@ Vector::Vector(size_t size) : values(size) {};
 
 Vector::Vector(size_t size, double value) : values(size, value) {};
 
-Vector::Vector(size_t size, double* values) : values(values, values + size) {};
+Vector::Vector(size_t size, const double* values) : values(values, values + size) {};
+
+Vector::Vector(std::initializer_list<double> init) : Vector(init.size(), init.begin()) {}
 
 Vector::Vector(std::vector<double> values) : values(values) {};
 
@@ -92,6 +94,15 @@ double Vector::sum() const {
     }
     return result;
 }
+
+double Vector::mean() const {
+    if (values.size() == 0) {
+        throw std::invalid_argument("Cannot compute mean of an empty vector.");
+    }
+    return sum() / static_cast<double>(values.size());
+}
+
+double Vector::norm() const { return std::sqrt(this->square().sum()); }
 
 Vector Vector::apply(std::function<double(double)> func) const {
     Vector result(values.size());

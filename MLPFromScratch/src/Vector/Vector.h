@@ -1,6 +1,7 @@
 #pragma once
 
 #include <functional>
+#include <initializer_list>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -8,9 +9,6 @@
 // Forward declaration of Matrix class
 class Matrix;
 
-/**
- * @brief Represents a vector of real numbers.
- */
 class Vector {
 public:
     /**
@@ -41,7 +39,13 @@ public:
      * @param size The size of the vector.
      * @param values The values to initialize all elements to.
      */
-    Vector(size_t size, double* values);
+    Vector(size_t size, const double* values);
+
+    /**
+     * @brief Creates a vector from an initializer list.
+     * @param init The initializer list of values.
+     */
+    Vector(std::initializer_list<double> init);
 
     /**
      * @brief Creates a new vector with the given size and initializes all elements to the given
@@ -148,6 +152,23 @@ public:
      * @returns The sum of all elements in the vector.
      */
     double sum() const;
+
+    /**
+     * @brief Computes the mean of all elements in the vector.
+     *
+     * @returns The mean of all elements in the vector.
+     */
+    double mean() const;
+
+    /**
+     * @brief Computes the Euclidean norm (magnitude) of the vector.
+     *
+     * The norm is calculated as the square root of the sum of the squares
+     * of all elements in the vector.
+     *
+     * @returns The Euclidean norm of the vector.
+     */
+    double norm() const;
 
     /**
      * @brief Applies a function to all elements in the vector.

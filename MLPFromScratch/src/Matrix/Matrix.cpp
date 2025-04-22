@@ -21,6 +21,15 @@ Matrix::Matrix(std::vector<std::vector<double>> values)
     }
 }
 
+Matrix::Matrix(std::initializer_list<std::initializer_list<double>> values)
+    : rows_(values.size()), cols_(values.begin()->size()), values(std::vector<Vector>(rows_)) {
+    size_t i = 0;
+    for (const auto& row : values) {
+        this->values[i] = Vector(row);
+        i++;
+    }
+}
+
 size_t Matrix::rows() const { return rows_; }
 
 size_t Matrix::cols() const { return cols_; }
