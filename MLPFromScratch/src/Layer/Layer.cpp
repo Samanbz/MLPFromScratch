@@ -1,8 +1,29 @@
 #include "Layer.h"
 
-Layer::Layer(size_t input_size, size_t neuron_count)
-    : neuron_count(neuron_count), input_size(input_size), delta(Vector(neuron_count)) {
-    neurons.resize(neuron_count, Neuron(input_size));
+Layer::Layer(size_t input_size, size_t neuron_count, Activation activation)
+    : neuron_count(neuron_count),
+      input_size(input_size),
+      gradient(Vector(neuron_count)),
+      activation(activation) {
+    for (size_t i = 0; i < neuron_count; i++) {
+        neurons.push_back(Neuron(input_size, activation));
+    }
+}
+
+Layer::Layer(size_t input_size, size_t neuron_count, const Matrix& init_weights,
+             Activation activation)
+    : neuron_count(neuron_count),
+      input_size(input_size),
+      gradient(Vector(neuron_count)),
+      activation(activation) {
+    if (init_weights.rows() != neuron_count || init_weights.cols() != input_size) {
+        throw std::invalid_argument(
+            "Initial weights size must match layer input size and neuron count.");
+    }
+
+    for (size_t i = 0; i < neuron_count; i++) {
+        neurons.push_back(Neuron(init_weights[i], 0, activation));
+    }
 }
 
 Vector Layer::forward(const Vector& input) {
@@ -47,13 +68,13 @@ Vector Layer::get_pre_activations() const {
     return current_values;
 }
 
-Vector Layer::get_delta() const { return delta; }
+Vector Layer::get_gradient() const { return gradient; }
 
-void Layer::set_delta(const Vector& delta) {
-    if (delta.size() != neuron_count) {
-        throw std::invalid_argument("Delta size must match layer size.");
+void Layer::set_gradient(const Vector& gradient) {
+    if (gradient.size() != neuron_count) {
+        throw std::invalid_argument("Gradient size must match layer size.");
     }
-    this->delta = delta;
+    this->gradient = gradient;
 }
 
 Matrix Layer::get_weights() const {
@@ -61,15 +82,18 @@ Matrix Layer::get_weights() const {
     for (size_t i = 0; i < neuron_count; ++i) {
         weights[i] = neurons[i].get_weights();
     }
-    return weights.transpose();
+    return weights;
 }
 
-void Layer::update_weights(const Matrix& weight_delta, double learning_rate) {
-    Matrix weight_delta_t = weight_delta.transpose();
-    if (weight_delta_t.rows() != neuron_count || weight_delta_t.cols() != input_size) {
-        throw std::invalid_argument("Weight delta size must match layer size.");
+void Layer::update_weights(const Matrix& gradient, double learning_rate) {
+    if (gradient.rows() != neuron_count || gradient.cols() != input_size) {
+        throw std::invalid_argument("Weight gradient size must match layer size.");
     }
     for (size_t i = 0; i < neuron_count; i++) {
-        neurons[i].update_weights(weight_delta_t[i], learning_rate);
+        neurons[i].update_weights(gradient[i], learning_rate);
     }
+}
+
+Vector Layer::activation_derivative(const Vector& pre_activations) const {
+    return activation.derivative(pre_activations);
 }

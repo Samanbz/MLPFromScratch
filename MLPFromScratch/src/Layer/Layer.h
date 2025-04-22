@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 
+#include "../Functions/Activation.h"
 #include "../Matrix/Matrix.h"
 #include "../Neuron/Neuron.h"
 #include "../Vector/Vector.h"
@@ -22,8 +23,20 @@ public:
      *
      * @param input_size The size of the input vector to the layer.
      * @param neuron_count The number of neurons in the layer.
+     * @param activation The activation function to be used by the neurons in the layer.
      */
-    Layer(size_t input_size, size_t neuron_count);
+    Layer(size_t input_size, size_t neuron_count, Activation activation);
+
+    /**
+     * @brief Constructs a new Layer object with specified initial weights.
+     *
+     * @param input_size The size of the input vector to the layer.
+     * @param neuron_count The number of neurons in the layer.
+     * @param init_weights The initial weights of the neurons in the layer.
+     * @param activation The activation function to be used by the neurons in the layer.
+     */
+    Layer(size_t input_size, size_t neuron_count, const Matrix& init_weights,
+          Activation activation);
 
     /**
      * @brief Performs a forward pass through the layer.
@@ -76,24 +89,24 @@ public:
     Vector get_pre_activations() const;
 
     /**
-     * @brief Returns the delta values of the layer.
+     * @brief Returns the gradient of the layer.
      *
-     * The delta values represent the error signal for each neuron in the layer,
+     * The gradient values represent the error for each neuron in the layer,
      * which is used during the backpropagation process to update weights.
      *
-     * @return Vector The delta values of the layer.
+     * @return Vector The gradient of the layer.
      */
-    Vector get_delta() const;
+    Vector get_gradient() const;
 
     /**
-     * @brief Sets the delta values of the layer.
+     * @brief Sets the gradient values of the layer.
      *
-     * This method allows updating the delta values of the layer, which are
+     * This method allows updating the gradient values of the layer, which are
      * used during the backpropagation process to adjust the weights of the neurons.
      *
-     * @param delta The new delta values to set for the layer.
+     * @param gradient The new gradient values to set for the layer.
      */
-    void set_delta(const Vector& delta);
+    void set_gradient(const Vector& gradient);
 
     /**
      * @brief Returns the weights of the layer.
@@ -106,19 +119,28 @@ public:
     Matrix get_weights() const;
 
     /**
-     * @brief Updates the weights of the layer based on the provided weight delta.
+     * @brief Updates the weights of the layer based on the provided weight gradient.
      *
-     * This method applies the weight delta to the weights of the neurons in the layer.
+     * This method applies the weight gradient to the weights of the neurons in the layer.
      *
-     * @param weight_delta The weight delta to apply to the layer's weights.
+     * @param weight_gradient The gradient to apply to the layer's weights.
      * @param learning_rate The learning rate to use for the weight update.
      */
-    void update_weights(const Matrix& weight_delta, double learning_rate);
+    void update_weights(const Matrix& weight_gradient, double learning_rate);
+
+    /**
+     * @brief evaluates the derivative of the activation function. Used in backprop.
+     *
+     * @param input The input vector to the layer.
+     * @return Vector The derivative of the activation function applied to the input.
+     */
+    Vector activation_derivative(const Vector& input) const;
 
 private:
-    size_t neuron_count;
-    size_t input_size;
-    std::vector<Neuron> neurons;
+    size_t neuron_count;          /// The number of neurons in the layer.
+    size_t input_size;            /// The size of the input vector to the layer.
+    std::vector<Neuron> neurons;  /// The neurons in the layer.
+    Activation activation;        /// The activation function used by the neurons in the layer.
 
-    Vector delta;
+    Vector gradient;  /// The gradient values of the layer, used for backpropagation.
 };
