@@ -10,7 +10,6 @@ Neuron::Neuron(size_t input_size, Activation activation)
         {
         }
     }
-    std::cout << "Neuron initialized with weights: " << weights.to_string() << std::endl;
 }
 
 Neuron::Neuron(const Vector& initial_weights, double initial_bias, Activation activation)
@@ -44,20 +43,12 @@ void Neuron::update_weights(const Vector& gradient, double learning_rate) {
     this->weight_gradient = clipped_gradient;
 
     weights = weights - (clipped_gradient * learning_rate);
-    for (double weight : weights.get_values()) {
-        if (std::isnan(weight) || std::isinf(weight)) {
-            throw std::invalid_argument("Weight update resulted in NaN or Inf.");
-        }
-    }
 }
 
 Vector Neuron::clip_gradient(const Vector& gradient, double clip_threshold) {
     double clip_factor = clip_threshold / gradient.norm();
     if (clip_factor < 1.0) {
         Vector clipped_gradient = gradient * clip_factor;
-        /*  std::cout << "Clipping gradient: " << gradient.to_string() << " -> "
-                    << clipped_gradient.to_string() << "Norm: " << gradient.norm()
-                    << " Clip facotr: " << clip_factor << std::endl;*/
         return clipped_gradient;
     }
     return gradient;
