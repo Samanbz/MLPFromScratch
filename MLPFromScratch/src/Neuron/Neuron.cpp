@@ -56,6 +56,10 @@ Vector Neuron::clip_gradient(const Vector& gradient, double clip_threshold) {
 
 double Neuron::get_bias() const { return bias; }
 
+void Neuron::update_bias(double gradient, double learning_rate) {
+    this->bias -= gradient * learning_rate;
+}
+
 Vector Neuron::get_weight_gradient() const { return weight_gradient; }
 
 std::string Neuron::to_string() const {

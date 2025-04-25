@@ -63,6 +63,13 @@ public:
     double get_bias() const;
 
     /**
+     * Updates the bias of the neuron using the provided gradient and learning rate.
+     * @param gradient The gradient to update the bias.
+     * @param learning_rate The learning rate to scale the bias update. Defaults to 0.01.
+     */
+    void update_bias(double gradient, double learning_rate);
+
+    /**
      * .
      */
     Vector get_weight_gradient() const;

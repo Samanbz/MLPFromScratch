@@ -63,6 +63,8 @@ double MLP::backward(const Vector& target) {
 
     Vector output_gradient = compute_output_gradient(target);
 
+    output_layer.update_biases(output_gradient, learning_rate);
+
     Matrix output_weight_gradient =
         compute_weight_gradient(layers[layers.size() - 2].get_outputs(), output_gradient);
 
@@ -73,6 +75,8 @@ double MLP::backward(const Vector& target) {
         Layer& next_layer = layers[i + 1];
 
         Vector layer_gradient = compute_layer_gradient(i);
+
+        layer.update_biases(layer_gradient, learning_rate);
 
         Matrix gradient;
         if (i > 0) {

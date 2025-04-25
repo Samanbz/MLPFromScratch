@@ -94,6 +94,23 @@ void Layer::update_weights(const Matrix& gradient, double learning_rate) {
     }
 }
 
+Vector Layer::get_biases() const {
+    Vector biases(neuron_count);
+    for (size_t i = 0; i < neuron_count; ++i) {
+        biases[i] = neurons[i].get_bias();
+    }
+    return biases;
+}
+
+void Layer::update_biases(const Vector& gradient, double learning_rate) {
+    if (gradient.size() != neuron_count) {
+        throw std::invalid_argument("Bias gradient size must match layer size.");
+    }
+    for (size_t i = 0; i < neuron_count; i++) {
+        neurons[i].update_bias(gradient[i], learning_rate);
+    }
+}
+
 Vector Layer::activation_derivative(const Vector& pre_activations) const {
     return activation.derivative(pre_activations);
 }

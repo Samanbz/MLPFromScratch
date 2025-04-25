@@ -129,6 +129,22 @@ public:
     void update_weights(const Matrix& weight_gradient, double learning_rate);
 
     /**
+     * @brief Returns the biases of the layer.
+     *
+     * @return Vector The biases of the layer.
+     */
+    Vector get_biases() const;
+    /**
+     * @brief Updates the bias of the layer based on the provided bias gradient.
+     *
+     * This method applies the bias gradient to the biases of the neurons in the layer.
+     *
+     * @param bias_gradient The gradient to apply to the layer's biases.
+     * @param learning_rate The learning rate to use for the bias update.
+     */
+    void update_biases(const Vector& bias_gradient, double learning_rate);
+
+    /**
      * @brief evaluates the derivative of the activation function. Used in backprop.
      *
      * @param input The input vector to the layer.
