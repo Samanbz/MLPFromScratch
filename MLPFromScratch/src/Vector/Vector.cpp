@@ -1,4 +1,4 @@
-#include "Vector.h"
+#include "Vector.cuh"
 
 #include <format>
 #include <iostream>
@@ -9,13 +9,24 @@ Vector::Vector() : values(0) {};
 
 Vector::Vector(size_t size) : values(size) {};
 
-Vector::Vector(size_t size, double value) : values(size, value) {};
+Vector::Vector(size_t size, double value) {
+    this->values.reserve(size);
+    for (size_t i = 0; i < size; i++) {
+        this->values.push_back(value);
+    }
+};
 
-Vector::Vector(size_t size, const double* values) : values(values, values + size) {};
+Vector::Vector(size_t size, const double* values)
+    : values(values ? std::vector<double>(values, values + size) : std::vector<double>(size)) {}
 
 Vector::Vector(std::initializer_list<double> init) : Vector(init.size(), init.begin()) {}
 
-Vector::Vector(std::vector<double> values) : values(values) {};
+Vector::Vector(std::vector<double> values) {
+    this->values.reserve(values.size());
+    for (size_t i = 0; i < values.size(); i++) {
+        this->values.push_back(values[i]);
+    }
+};
 
 Vector Vector::random(double min, double max) {
     Vector result(1);
@@ -24,31 +35,29 @@ Vector Vector::random(double min, double max) {
     return result;
 }
 
-size_t Vector::size() const { return values.size(); }
-
 double& Vector::operator[](size_t index) { return values[index]; }
 
 const double& Vector::operator[](size_t index) const { return values[index]; }
 
-double Vector::dot(const Vector& other) const {
-    if (values.size() != other.size()) {
-        throw std::invalid_argument("Vector dimensions must match.");
-    }
+// double Vector::dot(const Vector& other) const {
+//     if (values.size() != other.size()) {
+//         throw std::invalid_argument("Vector dimensions must match.");
+//     }
+//
+//     double result = 0;
+//     for (size_t i = 0; i < values.size(); i++) {
+//         result += values[i] * other[i];
+//     }
+//     return result;
+// }
 
-    double result = 0;
-    for (size_t i = 0; i < values.size(); i++) {
-        result += values[i] * other[i];
-    }
-    return result;
-}
-
-Vector Vector::operator+(const Vector& other) const {
-    Vector result(values.size());
-    for (size_t i = 0; i < values.size(); i++) {
-        result[i] = values[i] + other[i];
-    }
-    return result;
-}
+// Vector Vector::operator+(const Vector& other) const {
+//     Vector result(values.size());
+//     for (size_t i = 0; i < values.size(); i++) {
+//         result[i] = values[i] + other[i];
+//     }
+//     return result;
+// }
 
 Vector Vector::operator-(const Vector& other) const {
     Vector result(values.size());
@@ -66,18 +75,16 @@ Vector Vector::operator*(double scalar) const {
     return result;
 }
 
-Vector Vector::elem_mult(const Vector& other) const {
-    if (values.size() != other.size()) {
-        throw std::invalid_argument("Vector dimensions must match.");
-    }
-    Vector result(values.size());
-    for (size_t i = 0; i < values.size(); i++) {
-        result[i] = values[i] * other[i];
-    }
-    return result;
-}
-
-std::vector<double> Vector::get_values() const { return this->values; }
+// Vector Vector::elem_mult(const Vector& other) const {
+//     if (values.size() != other.size()) {
+//         throw std::invalid_argument("Vector dimensions must match.");
+//     }
+//     Vector result(values.size());
+//     for (size_t i = 0; i < values.size(); i++) {
+//         result[i] = values[i] * other[i];
+//     }
+//     return result;
+// }
 
 Vector Vector::square() const {
     Vector result(values.size());
@@ -87,13 +94,13 @@ Vector Vector::square() const {
     return result;
 }
 
-double Vector::sum() const {
-    double result = 0;
-    for (size_t i = 0; i < values.size(); i++) {
-        result += values[i];
-    }
-    return result;
-}
+// double Vector::sum() const {
+//     double result = 0;
+//     for (size_t i = 0; i < values.size(); i++) {
+//         result += values[i];
+//     }
+//     return result;
+// }
 
 double Vector::mean() const {
     if (values.size() == 0) {

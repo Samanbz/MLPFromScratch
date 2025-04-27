@@ -5,7 +5,7 @@
 
 #include <iostream>
 
-#include "./Vector/Vector.h"
+#include "./Vector/Vector.cuh"
 #include "./src/Functions/Activation.h"
 #include "./src/Functions/Loss.h"
 #include "./src/MLP/MLP.h"

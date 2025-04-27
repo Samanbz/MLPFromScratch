@@ -1,5 +1,8 @@
 #pragma once
 
+#include <device_launch_parameters.h>
+
+#include <cassert>
 #include <functional>
 #include <initializer_list>
 #include <stdexcept>
@@ -67,7 +70,31 @@ public:
      *
      * @returns The size of the vector.
      */
-    size_t size() const;
+    __host__ __device__ size_t size() const { return values.size(); }
+
+    /**
+     * @brief Returns the element at the given index.
+     *
+     * @param index The index of the element to return.
+     * @returns The element at the given index.
+     * @throws std::out_of_range if the index is out of bounds.
+     */
+    __host__ __device__ double& at(size_t index) {
+        assert(index < size());
+        return values[index];
+    }
+
+    /**
+     * @brief Returns the element at the given index.
+     *
+     * @param index The index of the element to return.
+     * @returns The element at the given index.
+     * @throws std::out_of_range if the index is out of bounds.
+     */
+    __host__ __device__ double at(size_t index) const {
+        assert(index < size());
+        return values[index];
+    }
 
     /**
      * @brief Returns the element at the given index.
@@ -123,11 +150,18 @@ public:
     Vector operator*(double scalar) const;
 
     /**
-     * @brief returns the values of the vector.
+     * @brief return the underlying values of the vector.
      *
      * @returns the underlying vector.
      */
-    std::vector<double> get_values() const;
+    std::vector<double>& get_values() { return values; }
+
+    /**
+     * @brief return the underlying values of the vector.
+     *
+     * @returns the underlying vector.
+     */
+    const std::vector<double> get_values() const { return values; }
 
     /**
      * @brief Computes the element-wise multiplication of this vector with another vector.

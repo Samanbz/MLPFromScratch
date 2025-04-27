@@ -8,7 +8,7 @@
 #include "../Functions/Loss.h"
 #include "../Layer/Layer.h"
 #include "../Matrix/Matrix.h"
-#include "../Vector/Vector.h"
+#include "../Vector/Vector.cuh"
 
 class MLP {
 public:

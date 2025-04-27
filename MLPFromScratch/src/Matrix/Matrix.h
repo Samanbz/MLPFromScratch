@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-#include "../Vector/Vector.h"
+#include "../Vector/Vector.cuh"
 
 /**
  * @brief Represents a row-major matrix of real numbers.

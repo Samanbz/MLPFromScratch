@@ -2,7 +2,7 @@
 
 #include <functional>
 
-#include "../Vector/Vector.h"
+#include "../Vector/Vector.cuh"
 
 class Loss {
 public:

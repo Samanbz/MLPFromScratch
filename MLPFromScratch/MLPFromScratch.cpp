@@ -3,10 +3,10 @@
 
 #include "MLPFromScratch.h"
 
-#include "./examples/polynomial.cpp"
+#include "./examples/xor.cpp"
 
 int main() {
-    polynomial_example();
+    xor_example();
 
     return 0;
 }

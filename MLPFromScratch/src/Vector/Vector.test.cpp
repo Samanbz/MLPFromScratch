@@ -1,4 +1,4 @@
-#include "Vector.h"
+#include "Vector.cuh"
 
 #include "../Matrix/Matrix.h"
 #include "catch.hpp"

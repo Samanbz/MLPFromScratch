@@ -3595,7 +3595,7 @@ namespace Matchers {
 } // namespace Catch
 
 // end catch_matchers_string.h
-// start catch_matchers_vector.h
+// start catch_matchers_Vector.cuh
 
 #include <algorithm>
 
@@ -3763,7 +3763,7 @@ namespace Matchers {
 } // namespace Matchers
 } // namespace Catch
 
-// end catch_matchers_vector.h
+// end catch_matchers_Vector.cuh
 namespace Catch {
 
     template<typename ArgT, typename MatcherT>

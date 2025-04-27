@@ -4,7 +4,7 @@
 #include <string>
 
 #include "../Functions/Activation.h"
-#include "../Vector/Vector.h"
+#include "../Vector/Vector.cuh"
 
 /**
  * Represents a neuron in the multi-layer perceptron.
