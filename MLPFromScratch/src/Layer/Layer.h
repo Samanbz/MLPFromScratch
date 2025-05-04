@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "../Functions/Activation.h"
-#include "../Matrix/Matrix.h"
+#include "../Matrix/Matrix.cuh"
 #include "../Neuron/Neuron.h"
 #include "../Vector/Vector.cuh"
 

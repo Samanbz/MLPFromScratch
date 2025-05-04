@@ -15,13 +15,13 @@ static void polynomial_example() {
     }
 
     // Revised architecture (1-8-8-1) with tanh activations
-    std::vector<size_t> architecture = {1, 8, 8, 1};
-    MLP mlp(architecture, {sigmoid, sigmoid, linear}, mse);
+    std::vector<size_t> architecture = {1, 100, 100, 1};
+    MLP mlp(architecture, {leaky_relu, leaky_relu, leaky_relu}, mse);
     mlp.set_learning_rate(0.1);
 
     // Double training duration with progress checks
-    int epochs = 100000;
-    int log_interval = 2000;
+    int epochs = 10000;
+    int log_interval = 1000;
 
     // Train the model
     mlp.train(inputs, targets, epochs, log_interval);

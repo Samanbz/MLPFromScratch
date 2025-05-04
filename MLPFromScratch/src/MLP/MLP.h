@@ -7,7 +7,7 @@
 #include "../Functions/Activation.h"
 #include "../Functions/Loss.h"
 #include "../Layer/Layer.h"
-#include "../Matrix/Matrix.h"
+#include "../Matrix/Matrix.cuh"
 #include "../Vector/Vector.cuh"
 
 class MLP {

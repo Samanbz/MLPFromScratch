@@ -8,12 +8,12 @@ static void xor_example() {
     // Create MLP model with 2-input, hidden layer with 4 nodes, and 1 output
     // Input layer (2 nodes) -> Hidden layer (4 nodes) -> Output layer (1 node)
     std::vector<size_t> architecture = {2, 4, 1};
-    MLP mlp(architecture, {sigmoid, sigmoid}, mse);
+    MLP mlp(architecture, {leaky_relu, leaky_relu}, mse);
     mlp.set_learning_rate(0.15);
 
     // Training parameters
     int epochs = 100000;
-    int log_interval = 10000;  // Print loss every 1000 epochs
+    int log_interval = 1000;  // Print loss every 1000 epochs
 
     // Train the model
     mlp.train(inputs, targets, epochs, log_interval);
