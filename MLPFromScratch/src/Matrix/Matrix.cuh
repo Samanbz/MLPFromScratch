@@ -1,9 +1,12 @@
 #pragma once
 
+#include <device_launch_parameters.h>
+
+#include <cassert>
+#include <cstring>
 #include <initializer_list>
 #include <iostream>
 #include <string>
-#include <vector>
 
 #include "../Vector/Vector.cuh"
 
@@ -46,16 +49,48 @@ public:
     Matrix(std::initializer_list<std::initializer_list<double>> values);
 
     /**
+     * @brief Creates a Matrix object from a flattened array of doubles.
+     * @param rows The number of rows in the matrix.
+     * @param cols The number of columns in the matrix.
+     * @param data Pointer to the flattened array of doubles (in row-major order).
+     */
+    Matrix(size_t rows, size_t cols, const double* data);
+
+    /**
+     * @brief Copy constructor
+     * @param other The matrix to copy from
+     */
+    Matrix(const Matrix& other);
+
+    /**
+     * @brief Assignment operator
+     * @param other The matrix to copy from
+     * @return Reference to this matrix
+     */
+    Matrix& operator=(const Matrix& other);
+
+    /**
+     * @brief Destructor to free allocated memory
+     */
+    ~Matrix();
+
+    /**
      * @brief Returns the number of rows in the matrix.
      * @returns The number of rows in the matrix.
      */
-    size_t rows() const;
+    __host__ __device__ size_t rows() const { return rows_; }
 
     /**
      * @brief Returns the number of columns in the matrix.
      * @returns The number of columns in the matrix.
      */
-    size_t cols() const;
+    __host__ __device__ size_t cols() const { return cols_; }
+
+    /**
+     * @brief Flattens the matrix into a 1D array.
+     * @param output Pointer to the output array (must be pre-allocated with rows*cols elements)
+     */
+    void flatten(double* output) const;
 
     /**
      * @brief Accesses the specified row of the matrix.
@@ -77,7 +112,10 @@ public:
      * @param col The index of the column of the element.
      * @returns A reference to the element at the specified position.
      */
-    double& at(size_t row, size_t col);
+    __host__ __device__ double& at(size_t row, size_t col) {
+        assert(row < rows_ && col < cols_);
+        return values[row].at(col);
+    }
 
     /**
      * @brief Accesses the specified element of the matrix (const version).
@@ -85,7 +123,10 @@ public:
      * @param col The index of the column of the element.
      * @returns A const reference to the element at the specified position.
      */
-    const double& at(size_t row, size_t col) const;
+    __host__ __device__ double at(size_t row, size_t col) const {
+        assert(row < rows_ && col < cols_);
+        return values[row].at(col);
+    }
 
     /**
      * @brief Adds two matrices.
@@ -116,8 +157,8 @@ public:
      * @brief Multiplies the matrix by a vector.
      * @param vector The vector to multiply with.
      * @returns A new vector that is the product of this matrix and the vector.
-     * @throws std::invalid_argument if the number of columns in the matrix does not match the size
-     * of the vector.
+     * @throws std::invalid_argument if the number of columns in the matrix does not match the
+     * size of the vector.
      */
     Vector operator*(const Vector& vector) const;
 
@@ -148,7 +189,7 @@ public:
     bool operator==(const Matrix& other) const;
 
 private:
-    size_t rows_;                /// The number of rows in the matrix.
-    size_t cols_;                /// The number of columns in the matrix.
-    std::vector<Vector> values;  /// The values of the matrix stored as a vector of vectors.
+    size_t rows_;    /// The number of rows in the matrix.
+    size_t cols_;    /// The number of columns in the matrix.
+    Vector* values;  /// The values of the matrix stored as an array of Vector objects
 };
