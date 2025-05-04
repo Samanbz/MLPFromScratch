@@ -1,6 +1,6 @@
 #include "Vector.cuh"
 
-#include "../Matrix/Matrix.h"
+#include "../Matrix/Matrix.cuh"
 #include "catch.hpp"
 
 TEST_CASE("Vector Construction", "[Vector]") {
@@ -34,12 +34,6 @@ TEST_CASE("Vector Dot Product", "[Vector]") {
     Vector v1(3, 1);
     Vector v2(3, 2);
     REQUIRE(v1.dot(v2) == 6);
-}
-
-TEST_CASE("Vector Invalid Dot Product, ", "[Vector]") {
-    Vector v1(3, 1);
-    Vector v2(4, 2);
-    REQUIRE_THROWS_AS(v1.dot(v2), std::invalid_argument);
 }
 
 TEST_CASE("Vector Addition", "[Vector]") {
@@ -79,12 +73,6 @@ TEST_CASE("Vector Element-wise Multiplication", "[Vector]") {
     REQUIRE(v3[0] == 2);
     REQUIRE(v3[1] == 2);
     REQUIRE(v3[2] == 2);
-}
-
-TEST_CASE("Vector Element-wise Multiplication Invalid Size", "[Vector]") {
-    Vector v1(3, 1);
-    Vector v2(4, 2);
-    REQUIRE_THROWS_AS(v1.elem_mult(v2), std::invalid_argument);
 }
 
 TEST_CASE("Vector sum", "[Vector]") {

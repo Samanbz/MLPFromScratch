@@ -2,238 +2,257 @@
 
 #include <device_launch_parameters.h>
 
-#include <cassert>
 #include <functional>
 #include <initializer_list>
-#include <stdexcept>
 #include <string>
 #include <vector>
 
 // Forward declaration of Matrix class
 class Matrix;
 
+/**
+ * @brief A class representing a mathematical vector with CUDA support
+ *
+ * This Vector class provides operations for mathematical vectors with CUDA
+ * support using __host__ and __device__ qualifiers for GPU compatibility.
+ */
 class Vector {
 public:
     /**
-     * @brief default constructor that initializes an empty vector.
+     * @brief Default constructor
+     *
+     * Creates an empty vector with size 0
      */
     Vector();
 
     /**
-     * @brief Creates a new vector with the given size.
+     * @brief Constructs a vector of specified size initialized to zeros
      *
-     * @param size The size of the vector.
+     * @param size Number of elements in the vector
      */
     Vector(size_t size);
 
     /**
-     * @brief Creates a new vector with the given size and initializes all elements to the given
-     * value.
+     * @brief Constructs a vector of specified size with all elements set to a given value
      *
-     * @param size The size of the vector.
-     * @param value The value to initialize all elements to.
+     * @param size Number of elements in the vector
+     * @param value Value to initialize all elements with
      */
     Vector(size_t size, double value);
 
     /**
-     * @brief Creates a new vector with the given size and initializes all elements to the given
-     * values.
+     * @brief Constructs a vector from a raw array of values
      *
-     * @param size The size of the vector.
-     * @param values The values to initialize all elements to.
+     * @param size Number of elements in the vector
+     * @param values Pointer to the array of values to copy
      */
     Vector(size_t size, const double* values);
 
     /**
-     * @brief Creates a vector from an initializer list.
-     * @param init The initializer list of values.
+     * @brief Constructs a vector from an initializer list
+     *
+     * @param init Initializer list containing the values
      */
     Vector(std::initializer_list<double> init);
 
     /**
-     * @brief Creates a new vector with the given size and initializes all elements to the given
-     * values.
+     * @brief Constructs a vector from a std::vector
      *
-     * @param values The values to initialize all elements to.
+     * @param values std::vector containing the values to copy
      */
     Vector(std::vector<double> values);
 
     /**
-     * @brief initializes a random vector with values within a given range
+     * @brief Copy constructor
      *
-     * @param range of the random values
+     * @param other Vector to be copied
      */
-    Vector static random(double min, double max);
+    Vector(const Vector& other);
 
     /**
-     * @brief Returns the size of the vector.
+     * @brief Copy assignment operator
      *
-     * @returns The size of the vector.
+     * @param other Vector to be copied
+     * @return Reference to the assigned vector
      */
-    __host__ __device__ size_t size() const { return values.size(); }
+    Vector& operator=(const Vector& other);
 
     /**
-     * @brief Returns the element at the given index.
+     * @brief Destructor
      *
-     * @param index The index of the element to return.
-     * @returns The element at the given index.
-     * @throws std::out_of_range if the index is out of bounds.
+     * Frees the memory allocated for the vector elements
      */
-    __host__ __device__ double& at(size_t index) {
-        assert(index < size());
-        return values[index];
-    }
+    ~Vector();
 
     /**
-     * @brief Returns the element at the given index.
+     * @brief Creates a vector with random values
      *
-     * @param index The index of the element to return.
-     * @returns The element at the given index.
-     * @throws std::out_of_range if the index is out of bounds.
+     * @param min Lower bound for random values
+     * @param max Upper bound for random values
+     * @return A new Vector with random values between min and max
      */
-    __host__ __device__ double at(size_t index) const {
-        assert(index < size());
-        return values[index];
-    }
+    static Vector random(double min, double max);
 
     /**
-     * @brief Returns the element at the given index.
+     * @brief Gets the size of the vector
      *
-     * @param index The index of the element to return.
-     * @returns The element at the given index.
-     * @throws std::out_of_range if the index is out of bounds.
+     * @return Number of elements in the vector
+     */
+    __host__ __device__ size_t size() const { return size_; }
+
+    /**
+     * @brief Access operator for modifiable elements
+     *
+     * @param index Position of the element to access
+     * @return Reference to the element at the specified position
+     */
+    __host__ __device__ double& at(size_t index) { return values[index]; }
+
+    /**
+     * @brief Access operator for read-only elements
+     *
+     * @param index Position of the element to access
+     * @return Constant reference to the element at the specified position
+     */
+    __host__ __device__ const double& at(size_t index) const { return values[index]; }
+
+    /**
+     * @brief Access operator for modifiable elements
+     *
+     * @param index Position of the element to access
+     * @return Reference to the element at the specified position
      */
     double& operator[](size_t index);
 
     /**
-     * @brief Returns the element at the given index.
+     * @brief Access operator for read-only elements
      *
-     * @param index The index of the element to return.
-     * @returns The element at the given index.
-     * @throws std::out_of_range if the index is out of bounds.
+     * @param index Position of the element to access
+     * @return Constant reference to the element at the specified position
      */
     const double& operator[](size_t index) const;
 
     /**
-     * @brief Computes the dot product of this vector and another vector.
+     * @brief Calculates the dot product of two vectors
      *
-     * @param other The other vector to compute the dot product with.
-     * @returns The dot product of the two vectors.
-     * @throws std::invalid_argument if the vectors have different sizes.
+     * @param other Vector to calculate dot product with
+     * @return Dot product result
      */
     double dot(const Vector& other) const;
 
     /**
-     * @brief Computes the sum of this vector and another vector.
+     * @brief Adds two vectors element-wise
      *
-     * @param other The other vector to compute the sum with.
-     * @returns The sum of the two vectors.
-     * @throws std::invalid_argument if the vectors have different sizes.
+     * @param other Vector to add
+     * @return New vector containing the sum
      */
     Vector operator+(const Vector& other) const;
 
     /**
-     * @brief Computes the difference of this vector and another vector.
+     * @brief Subtracts two vectors element-wise
      *
-     * @param other The other vector to compute the difference with.
-     * @returns The difference of the two vectors.
-     * @throws std::invalid_argument if the vectors have different sizes.
+     * @param other Vector to subtract
+     * @return New vector containing the difference
      */
     Vector operator-(const Vector& other) const;
 
     /**
-     * @brief Computes the product of this vector and a scalar.
+     * @brief Multiplies the vector by a scalar
      *
-     * @param scalar The scalar to compute the product with.
-     * @returns The product of the vector and the scalar.
+     * @param scalar Value to multiply each element by
+     * @return New vector containing the scaled values
      */
     Vector operator*(double scalar) const;
 
     /**
-     * @brief return the underlying values of the vector.
+     * @brief Performs element-wise multiplication with another vector
      *
-     * @returns the underlying vector.
-     */
-    std::vector<double>& get_values() { return values; }
-
-    /**
-     * @brief return the underlying values of the vector.
-     *
-     * @returns the underlying vector.
-     */
-    const std::vector<double> get_values() const { return values; }
-
-    /**
-     * @brief Computes the element-wise multiplication of this vector with another vector.
-     *
-     * @param other The other vector to compute the element-wise multiplication with.
-     * @returns A new vector containing the element-wise product.
-     * @throws std::invalid_argument if the vectors have different sizes.
+     * @param other Vector to multiply element-wise
+     * @return New vector containing the element-wise product
      */
     Vector elem_mult(const Vector& other) const;
 
     /**
-     * @brief returns the element-wise squared Vector.
+     * @brief Squares each element of the vector
      *
-     * @param vector to be squared.
-     * @returns The Vector squared element-wise.
+     * @return New vector with squared elements
      */
     Vector square() const;
 
     /**
-     * @brief Computes the sum of all elements in the vector.
+     * @brief Calculates the sum of all elements
      *
-     * @returns The sum of all elements in the vector.
+     * @return Sum of all elements in the vector
      */
     double sum() const;
 
     /**
-     * @brief Computes the mean of all elements in the vector.
+     * @brief Calculates the mean of all elements
      *
-     * @returns The mean of all elements in the vector.
+     * @return Mean value of the vector
      */
     double mean() const;
 
     /**
-     * @brief Computes the Euclidean norm (magnitude) of the vector.
+     * @brief Calculates the Euclidean norm (L2 norm) of the vector
      *
-     * The norm is calculated as the square root of the sum of the squares
-     * of all elements in the vector.
-     *
-     * @returns The Euclidean norm of the vector.
+     * @return Euclidean norm of the vector
      */
     double norm() const;
 
     /**
-     * @brief Applies a function to all elements in the vector.
+     * @brief Provides direct access to the underlying data array
      *
-     * @returns A new vector containing the results of applying the function to each element.
+     * @return Pointer to the first element of the vector
+     */
+    double* data() { return values; }
+
+    /**
+     * @brief Provides direct read-only access to the underlying data array
+     *
+     * @return Constant pointer to the first element of the vector
+     */
+    const double* data() const { return values; }
+
+    /**
+     * @brief Gets vector values as a std::vector
+     *
+     * @return std::vector containing a copy of all elements
+     */
+    std::vector<double> get_values() const;
+
+    /**
+     * @brief Applies a function to each element of the vector
+     *
+     * @param func Function to apply to each element
+     * @return New vector with transformed elements
      */
     Vector apply(std::function<double(double)> func) const;
 
     /**
-     * @brief Computes the outer product of this vector with another vector.
+     * @brief Computes the outer product with another vector
      *
-     * @param other The other vector to compute the outer product with.
-     * @returns A new matrix representing the outer product of the two vectors.
+     * @param other Vector to compute outer product with
+     * @return Matrix representing the outer product
      */
     Matrix outer_product(const Vector& other) const;
 
     /**
-     * @brief Returns the string representation of this vector.
+     * @brief Converts the vector to a string representation
      *
-     * @returns The string representation of this vector.
+     * @return String representation of the vector
      */
     std::string to_string() const;
 
     /**
-     * @brief Checks if two vectors are equal.
+     * @brief Equality comparison operator
      *
-     * @param other vector to compare with.
-     * @returns true if the vectors are equal, false otherwise.
+     * @param other Vector to compare with
+     * @return true if vectors are equal, false otherwise
      */
     bool operator==(const Vector& other) const;
 
 private:
-    std::vector<double> values;
+    double* values;  // Raw pointer to array
+    size_t size_;    // Size of vector
 };
