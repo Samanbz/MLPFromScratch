@@ -54,6 +54,11 @@ public:
     void train(const std::vector<Vector>& inputs, const std::vector<Vector>& targets, size_t epochs,
                size_t log_interval = 10);
 
+    /**
+     * @brief Tests the network on a single input.
+     * @param input The input vector.
+     * @return The output vector after passing through the network.
+     */
     Vector test(const Vector& input) { return forward(input); }
 
     /**
@@ -64,17 +69,20 @@ public:
 
     /**
      * @brief Sets the learning rate.
-     * @param Learning rate
+     * @param learning_rate The learning rate to use for the network.
      */
     void set_learning_rate(double learning_rate) { this->learning_rate = learning_rate; }
 
+    /**
+     * @brief Gets the weight gradients for testing.
+     * @return A vector of weight gradient matrices.
+     */
+    std::vector<Matrix> get_weight_gradients() const { return weight_gradients; }
+
 private:
     Vector compute_output_gradient(const Vector& target);
-
     Matrix compute_weight_gradient(const Vector& layer_output, const Vector& layer_gradient);
-
     Vector compute_layer_gradient(size_t layer_idx);
-
     void validate_init(std::vector<size_t> layer_sizes, std::vector<Activation> layer_activations,
                        Loss loss_function);
 
@@ -83,8 +91,8 @@ private:
 
     Vector input;
     std::vector<Layer> layers;
+    std::vector<Matrix> weight_gradients;  // Store gradients for testing
 
     Loss loss_function;
-
     double learning_rate = 0.01;
 };

@@ -1,4 +1,4 @@
-#include "MLP.h"
+﻿#include "MLP.h"
 
 #include <iostream>
 
@@ -14,11 +14,12 @@ MLP::MLP(std::vector<size_t> layer_sizes, std::vector<Activation> layer_activati
     output_size = layer_sizes.back();
 
     input = Vector(input_size);
+    weight_gradients.resize(layer_sizes.size() - 1);
 
     layers.reserve(layer_sizes.size() - 1);
     for (size_t i = 1; i < layer_sizes.size(); i++) {
         layers.emplace_back(layer_sizes[i - 1], layer_sizes[i], layer_activations[i - 1]);
-    };
+    }
 }
 
 MLP::MLP(std::vector<size_t> layer_sizes, std::vector<Matrix> init_weights,
@@ -33,12 +34,13 @@ MLP::MLP(std::vector<size_t> layer_sizes, std::vector<Matrix> init_weights,
     output_size = layer_sizes.back();
 
     input = Vector(input_size);
+    weight_gradients.resize(layer_sizes.size() - 1);
 
     layers.reserve(layer_sizes.size() - 1);
     for (size_t i = 1; i < layer_sizes.size(); i++) {
         layers.emplace_back(layer_sizes[i - 1], layer_sizes[i], init_weights[i - 1],
                             layer_activations[i - 1]);
-    };
+    }
 }
 
 Vector MLP::forward(const Vector& input) {
@@ -48,12 +50,12 @@ Vector MLP::forward(const Vector& input) {
 
     this->input = input;
 
-    layers[0].forward(input);
-    for (size_t i = 1; i < layers.size(); i++) {
-        layers[i].forward(layers[i - 1].get_outputs());
+    Vector current_input = input;
+    for (size_t i = 0; i < layers.size(); i++) {
+        current_input = layers[i].forward(current_input);
     }
 
-    return layers.back().get_outputs();
+    return current_input;  // Final output
 }
 
 double MLP::backward(const Vector& target) {
@@ -61,32 +63,41 @@ double MLP::backward(const Vector& target) {
 
     double loss = this->loss_function(output_layer.get_outputs(), target);
 
+    // Calculate output layer gradient
     Vector output_gradient = compute_output_gradient(target);
 
+    // Update output layer biases
     output_layer.update_biases(output_gradient, learning_rate);
 
-    Matrix output_weight_gradient =
-        compute_weight_gradient(layers[layers.size() - 2].get_outputs(), output_gradient);
+    // Calculate and store output layer weight gradient
+    Matrix output_weight_gradient = compute_weight_gradient(
+        layers.size() > 1 ? layers[layers.size() - 2].get_outputs() : input, output_gradient);
+    weight_gradients[weight_gradients.size() - 1] = output_weight_gradient;
 
+    // Update output layer weights
     output_layer.update_weights(output_weight_gradient, learning_rate);
 
+    // Backpropagate through the rest of the network
     for (size_t i = layers.size() - 1; i-- > 0;) {
-        Layer& layer = layers[i];
-        Layer& next_layer = layers[i + 1];
+        Layer& current_layer = layers[i];
 
+        // Calculate gradient for the current layer
         Vector layer_gradient = compute_layer_gradient(i);
 
-        layer.update_biases(layer_gradient, learning_rate);
+        // Update biases
+        current_layer.update_biases(layer_gradient, learning_rate);
 
-        Matrix gradient;
+        // Calculate and store weight gradient
+        Matrix weight_gradient;
         if (i > 0) {
-            Layer& prev_layer = layers[i - 1];
-            gradient = compute_weight_gradient(prev_layer.get_outputs(), layer_gradient);
+            weight_gradient = compute_weight_gradient(layers[i - 1].get_outputs(), layer_gradient);
         } else {
-            gradient = compute_weight_gradient(input, layer_gradient);
+            weight_gradient = compute_weight_gradient(input, layer_gradient);
         }
+        weight_gradients[i] = weight_gradient;
 
-        layer.update_weights(gradient, learning_rate);
+        // Update weights
+        current_layer.update_weights(weight_gradient, learning_rate);
     }
 
     return loss;
@@ -101,7 +112,7 @@ void MLP::train(const std::vector<Vector>& inputs, const std::vector<Vector>& ta
     for (size_t epoch = 0; epoch < epochs; epoch++) {
         double epoch_loss = 0;
         for (size_t i = 0; i < inputs.size(); ++i) {
-            Vector out = forward(inputs[i]);
+            forward(inputs[i]);
             double loss = backward(targets[i]);
             epoch_loss += loss;
         }
@@ -133,12 +144,11 @@ Vector MLP::compute_output_gradient(const Vector& target) {
             .elem_mult(this->loss_function.derivative(target, output_layer.get_outputs()));
 
     output_layer.set_gradient(output_gradient);
-
     return output_gradient;
 }
 
-Matrix MLP::compute_weight_gradient(const Vector& layer_output, const Vector& layer_gradient) {
-    return layer_gradient.outer_product(layer_output);
+Matrix MLP::compute_weight_gradient(const Vector& layer_input, const Vector& layer_gradient) {
+    return layer_gradient.outer_product(layer_input);
 }
 
 Vector MLP::compute_layer_gradient(size_t layer_idx) {
@@ -146,14 +156,13 @@ Vector MLP::compute_layer_gradient(size_t layer_idx) {
         throw std::out_of_range("Layer index out of range.");
     }
 
-    Layer& layer = layers[layer_idx];
+    Layer& current_layer = layers[layer_idx];
     Layer& next_layer = layers[layer_idx + 1];
 
     Vector layer_gradient =
         (next_layer.get_weights().transpose() * next_layer.get_gradient())
-            .elem_mult(layer.activation_derivative(layer.get_pre_activations()));
+            .elem_mult(current_layer.activation_derivative(current_layer.get_pre_activations()));
 
-    layer.set_gradient(layer_gradient);
-
+    current_layer.set_gradient(layer_gradient);
     return layer_gradient;
 }

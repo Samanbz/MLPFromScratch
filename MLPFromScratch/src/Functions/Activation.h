@@ -42,11 +42,6 @@ namespace ActivationFunctions {
     inline Activation leaky_relu([](double x) { return (x > 0) ? x : 0.01 * x; },
                                  [](double x) { return (x > 0) ? 1.0 : 0.01; });
 
-    // Softmax
-    inline Activation softmax([](double x) { return std::exp(x); },
-                              [](double x) { return x * (1.0 - x); });
-
     // Linear
     inline Activation linear([](double x) { return x; }, [](double x) { return 1.0; });
-
 }  // namespace ActivationFunctions

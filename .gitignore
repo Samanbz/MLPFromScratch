@@ -8,6 +8,9 @@ x86/
 [Bb]in/
 [Oo]bj/
 
+# Input Data
+input/
+
 # Xcode
 *.xcodeproj
 *.xcworkspace

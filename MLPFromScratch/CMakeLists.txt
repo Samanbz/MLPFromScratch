@@ -11,8 +11,6 @@ set(COMMON_SOURCES
     "src/Vector/Vector.h"
     "src/Matrix/Matrix.h"
     "src/Matrix/Matrix.cpp"
-    "src/Neuron/Neuron.h"
-    "src/Neuron/Neuron.cpp"
     "src/Layer/Layer.h"
     "src/Layer/Layer.cpp"
     "src/MLP/MLP.h"
@@ -33,13 +31,16 @@ set(TEST_SOURCES
     "MLPFromScratchTest.cpp"
     "src/Vector/Vector.test.cpp"
     "src/Matrix/Matrix.test.cpp"
-    "src/Neuron/Neuron.test.cpp"
     "src/Layer/Layer.test.cpp"
     "src/MLP/MLP.test.cpp"
 )
 
+set(EXAMPLES_SOURCES
+    "examples/MNIST/mnist_reader.cpp"
+ "examples/MNIST/mnist_example.cpp")
+
 # Add main executable (without test files)
-add_executable(MLPFromScratch ${MAIN_SOURCES} ${COMMON_SOURCES})
+add_executable(MLPFromScratch ${MAIN_SOURCES} ${COMMON_SOURCES} ${EXAMPLES_SOURCES})
 
 # Add test executable
 add_executable(MLPFromScratchTest ${TEST_SOURCES} ${COMMON_SOURCES})
