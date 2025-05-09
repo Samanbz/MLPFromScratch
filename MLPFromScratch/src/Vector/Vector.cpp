@@ -1,10 +1,10 @@
-#include "Vector.cuh"
+#include "Vector.h"
 
 #include <algorithm>
 #include <cstring>
 #include <format>
 
-#include "../Matrix/Matrix.cuh"
+#include "../Matrix/Matrix.h"
 
 Vector::Vector() : values(nullptr), size_(0) {}
 
@@ -85,6 +85,97 @@ const double& Vector::operator[](size_t index) const {
 
 std::vector<double> Vector::get_values() const {
     return std::vector<double>(values, values + size_);
+}
+
+double Vector::dot(const Vector& other) const {
+    if (size_ != other.size_) {
+        throw std::invalid_argument("Vector dimensions must match.");
+    }
+
+    double result = 0;
+    for (size_t i = 0; i < size_; i++) {
+        result += values[i] * other.values[i];
+    }
+    return result;
+}
+
+Vector Vector::operator+(const Vector& other) const {
+    if (size_ != other.size_) {
+        throw std::invalid_argument("Vector dimensions must match.");
+    }
+
+    Vector result(size_);
+    for (size_t i = 0; i < size_; i++) {
+        result.values[i] = values[i] + other.values[i];
+    }
+    return result;
+}
+
+Vector Vector::operator-(const Vector& other) const {
+    if (size_ != other.size_) {
+        throw std::invalid_argument("Vector dimensions must match.");
+    }
+
+    Vector result(size_);
+    for (size_t i = 0; i < size_; i++) {
+        result.values[i] = values[i] - other.values[i];
+    }
+    return result;
+}
+
+Vector Vector::operator*(double scalar) const {
+    Vector result(size_);
+    for (size_t i = 0; i < size_; i++) {
+        result.values[i] = values[i] * scalar;
+    }
+    return result;
+}
+
+Vector Vector::elem_mult(const Vector& other) const {
+    if (size_ != other.size_) {
+        throw std::invalid_argument("Vector dimensions must match.");
+    }
+
+    Vector result(size_);
+    for (size_t i = 0; i < size_; i++) {
+        result.values[i] = values[i] * other.values[i];
+    }
+    return result;
+}
+
+Vector Vector::square() const {
+    Vector result(size_);
+    for (size_t i = 0; i < size_; i++) {
+        result.values[i] = values[i] * values[i];
+    }
+    return result;
+}
+
+double Vector::sum() const {
+    double result = 0;
+    for (size_t i = 0; i < size_; i++) {
+        result += values[i];
+    }
+    return result;
+}
+
+double Vector::mean() const {
+    if (size_ == 0) {
+        throw std::invalid_argument("Cannot compute mean of an empty vector.");
+    }
+    return sum() / static_cast<double>(size_);
+}
+
+double Vector::norm() const { return std::sqrt(this->square().sum()); }
+
+Matrix Vector::outer_product(const Vector& other) const {
+    Matrix result(size_, other.size());
+    for (size_t i = 0; i < size_; i++) {
+        for (size_t j = 0; j < other.size(); j++) {
+            result[i][j] = values[i] * other.values[j];
+        }
+    }
+    return result;
 }
 
 Vector Vector::apply(std::function<double(double)> func) const {

@@ -8,7 +8,7 @@
 #include <iostream>
 #include <string>
 
-#include "../Vector/Vector.cuh"
+#include "../Vector/Vector.h"
 
 /**
  * @brief Represents a row-major matrix of real numbers.
@@ -78,13 +78,13 @@ public:
      * @brief Returns the number of rows in the matrix.
      * @returns The number of rows in the matrix.
      */
-    __host__ __device__ size_t rows() const { return rows_; }
+    size_t rows() const { return rows_; }
 
     /**
      * @brief Returns the number of columns in the matrix.
      * @returns The number of columns in the matrix.
      */
-    __host__ __device__ size_t cols() const { return cols_; }
+    size_t cols() const { return cols_; }
 
     /**
      * @brief Flattens the matrix into a 1D array.
@@ -105,28 +105,6 @@ public:
      * @returns A const reference to the vector representing the row.
      */
     const Vector& operator[](size_t row) const;
-
-    /**
-     * @brief Accesses the specified element of the matrix.
-     * @param row The index of the row of the element.
-     * @param col The index of the column of the element.
-     * @returns A reference to the element at the specified position.
-     */
-    __host__ __device__ double& at(size_t row, size_t col) {
-        assert(row < rows_ && col < cols_);
-        return values[row].at(col);
-    }
-
-    /**
-     * @brief Accesses the specified element of the matrix (const version).
-     * @param row The index of the row of the element.
-     * @param col The index of the column of the element.
-     * @returns A const reference to the element at the specified position.
-     */
-    __host__ __device__ double at(size_t row, size_t col) const {
-        assert(row < rows_ && col < cols_);
-        return values[row].at(col);
-    }
 
     /**
      * @brief Adds two matrices.

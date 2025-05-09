@@ -8,11 +8,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Define common source files
 set(COMMON_SOURCES
     "src/Vector/Vector.cpp"
-    "src/Vector/Vector.cuh"
-    "src/Vector/Vector.cu"
-    "src/Matrix/Matrix.cuh"
+    "src/Vector/Vector.h"
+    "src/Matrix/Matrix.h"
     "src/Matrix/Matrix.cpp"
-    "src/Matrix/Matrix.cu"
     "src/Neuron/Neuron.h"
     "src/Neuron/Neuron.cpp"
     "src/Layer/Layer.h"
@@ -50,7 +48,7 @@ add_executable(MLPFromScratchTest ${TEST_SOURCES} ${COMMON_SOURCES})
 target_include_directories(MLPFromScratch PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_include_directories(MLPFromScratchTest PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-# Add include directories for finding Vector.cuh
+# Add include directories for finding Vector.h
 target_include_directories(MLPFromScratch PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
 target_include_directories(MLPFromScratchTest PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
 

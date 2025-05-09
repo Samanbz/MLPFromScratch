@@ -98,23 +98,7 @@ public:
      *
      * @return Number of elements in the vector
      */
-    __host__ __device__ size_t size() const { return size_; }
-
-    /**
-     * @brief Access operator for modifiable elements
-     *
-     * @param index Position of the element to access
-     * @return Reference to the element at the specified position
-     */
-    __host__ __device__ double& at(size_t index) { return values[index]; }
-
-    /**
-     * @brief Access operator for read-only elements
-     *
-     * @param index Position of the element to access
-     * @return Constant reference to the element at the specified position
-     */
-    __host__ __device__ const double& at(size_t index) const { return values[index]; }
+    size_t size() const { return size_; }
 
     /**
      * @brief Access operator for modifiable elements

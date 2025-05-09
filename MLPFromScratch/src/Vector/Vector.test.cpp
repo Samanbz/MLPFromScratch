@@ -1,6 +1,6 @@
-#include "Vector.cuh"
+#include "Vector.h"
 
-#include "../Matrix/Matrix.cuh"
+#include "../Matrix/Matrix.h"
 #include "catch.hpp"
 
 TEST_CASE("Vector Construction", "[Vector]") {

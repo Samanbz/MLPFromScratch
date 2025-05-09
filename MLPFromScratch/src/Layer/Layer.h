@@ -6,9 +6,9 @@
 #include <vector>
 
 #include "../Functions/Activation.h"
-#include "../Matrix/Matrix.cuh"
+#include "../Matrix/Matrix.h"
 #include "../Neuron/Neuron.h"
-#include "../Vector/Vector.cuh"
+#include "../Vector/Vector.h"
 
 /**
  * @brief Represents a layer of neurons in a neural network.

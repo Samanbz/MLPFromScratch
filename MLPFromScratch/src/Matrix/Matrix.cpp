@@ -1,4 +1,4 @@
-#include "Matrix.cuh"
+#include "Matrix.h"
 
 #include <cassert>
 #include <cstring>
@@ -94,6 +94,90 @@ const Vector& Matrix::operator[](size_t row) const {
     assert(row < rows_);
     return values[row];
 }
+
+Matrix Matrix::operator+(const Matrix& other) const {
+    if (rows_ != other.rows() || cols_ != other.cols()) {
+        throw std::invalid_argument("Matrix dimensions must match for addition.");
+    }
+
+    Matrix result(rows_, cols_);
+    for (size_t i = 0; i < rows_; i++) {
+        for (size_t j = 0; j < cols_; j++) {
+            result[i][j] = values[i][j] + other[i][j];
+        }
+    }
+    return result;
+}
+
+Matrix Matrix::operator-(const Matrix& other) const {
+    if (rows_ != other.rows() || cols_ != other.cols()) {
+        throw std::invalid_argument("Matrix dimensions must match for subtraction.");
+    }
+
+    Matrix result(rows_, cols_);
+    for (size_t i = 0; i < rows_; i++) {
+        for (size_t j = 0; j < cols_; j++) {
+            result[i][j] = values[i][j] - other[i][j];
+        }
+    }
+    return result;
+}
+
+Matrix Matrix::operator*(const Matrix& other) const {
+    if (cols_ != other.rows()) {
+        throw std::invalid_argument("Matrix dimensions incompatible for multiplication.");
+    }
+
+    Matrix result(rows_, other.cols());
+    for (size_t i = 0; i < rows_; i++) {
+        for (size_t j = 0; j < other.cols(); j++) {
+            double sum = 0.0;
+            for (size_t k = 0; k < cols_; k++) {
+                sum += values[i][k] * other[k][j];
+            }
+            result[i][j] = sum;
+        }
+    }
+    return result;
+}
+
+Vector Matrix::operator*(const Vector& vector) const {
+    if (cols_ != vector.size()) {
+        throw std::invalid_argument(
+            "Matrix and vector dimensions incompatible for multiplication.");
+    }
+
+    Vector result(rows_);
+    for (size_t i = 0; i < rows_; i++) {
+        double sum = 0.0;
+        for (size_t j = 0; j < cols_; j++) {
+            sum += values[i][j] * vector[j];
+        }
+        result[i] = sum;
+    }
+    return result;
+}
+
+Matrix Matrix::operator*(double scalar) const {
+    Matrix result(rows_, cols_);
+    for (size_t i = 0; i < rows_; i++) {
+        for (size_t j = 0; j < cols_; j++) {
+            result[i][j] = values[i][j] * scalar;
+        }
+    }
+    return result;
+}
+
+Matrix Matrix::transpose() const {
+    Matrix result(cols_, rows_);
+    for (size_t i = 0; i < rows_; i++) {
+        for (size_t j = 0; j < cols_; j++) {
+            result[j][i] = values[i][j];
+        }
+    }
+    return result;
+}
+
 std::string Matrix::to_string() const {
     std::string result = "[\n";
     for (size_t i = 0; i < rows_; i++) {
