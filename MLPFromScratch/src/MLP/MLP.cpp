@@ -61,7 +61,7 @@ Vector MLP::forward(const Vector& input) {
 double MLP::backward(const Vector& target) {
     Layer& output_layer = layers.back();
 
-    double loss = this->loss_function(output_layer.get_outputs(), target);
+    double loss = this->loss_function(target, output_layer.get_outputs());
 
     // Calculate output layer gradient
     Vector output_gradient = compute_output_gradient(target);

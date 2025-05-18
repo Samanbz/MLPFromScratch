@@ -42,4 +42,29 @@ namespace LossFunctions {
                    (static_cast<double>(1) / y_true.size());
         });
 
+    // Cross Entropy
+    inline Loss cross_entropy(
+        [](const Vector& y_true, const Vector& y_pred) {
+            // Compute softmax
+            Vector softmax_pred = y_pred.apply([](double x) { return std::exp(x); });
+            double sum = softmax_pred.sum();
+            softmax_pred = softmax_pred.apply([sum](double x) { return x / sum; });
+
+            // Compute cross-entropy
+            double loss = 0.0;
+            for (size_t i = 0; i < y_true.size(); ++i) {
+                loss -= y_true[i] * std::log(softmax_pred[i]);
+            }
+
+            return loss;
+        },
+        [](const Vector& y_true, const Vector& y_pred) {
+            // Compute softmax
+            Vector softmax_pred = y_pred.apply([](double x) { return std::exp(x); });
+            double sum = softmax_pred.sum();
+            softmax_pred = softmax_pred.apply([sum](double x) { return x / sum; });
+
+            // The derivative is simply softmax(y_pred) - y_true
+            return softmax_pred - y_true;
+        });
 }  // namespace LossFunctions

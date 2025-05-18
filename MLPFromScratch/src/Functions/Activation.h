@@ -39,7 +39,7 @@ namespace ActivationFunctions {
                            [](double x) { return (x > 0) ? 1.0 : 0.0; });
 
     // Leaky ReLU
-    inline Activation leaky_relu([](double x) { return (x > 0) ? x : 0.01 * x; },
+    inline Activation leaky_relu([](double x) { return std::max(0.1, x); },
                                  [](double x) { return (x > 0) ? 1.0 : 0.01; });
 
     // Linear

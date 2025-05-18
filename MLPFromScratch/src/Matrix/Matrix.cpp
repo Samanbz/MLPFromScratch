@@ -1,7 +1,24 @@
 #include "Matrix.h"
 
+#include <omp.h>
+
 #include <cassert>
 #include <cstring>
+
+#include "../config.h"
+
+#ifndef __OMP_PARALLEL_FOR
+#define __OMP_PARALLEL_FOR _Pragma("omp parallel for")
+#endif
+
+#define CONDITIONAL_PARALLEL(for_loop_code)       \
+    if (rows_ * cols_ < PARALLEL_THRESHOLD) {     \
+        /* Serial execution */                    \
+        for_loop_code                             \
+    } else {                                      \
+        /* Parallel execution */                  \
+        _Pragma("omp parallel for") for_loop_code \
+    }
 
 Matrix::Matrix() : rows_(0), cols_(0), values(nullptr) {}
 
@@ -101,11 +118,12 @@ Matrix Matrix::operator+(const Matrix& other) const {
     }
 
     Matrix result(rows_, cols_);
-    for (size_t i = 0; i < rows_; i++) {
+
+    CONDITIONAL_PARALLEL(for (int i = 0; i < rows_; i++) {
         for (size_t j = 0; j < cols_; j++) {
             result[i][j] = values[i][j] + other[i][j];
         }
-    }
+    });
     return result;
 }
 
@@ -115,11 +133,12 @@ Matrix Matrix::operator-(const Matrix& other) const {
     }
 
     Matrix result(rows_, cols_);
-    for (size_t i = 0; i < rows_; i++) {
+
+    CONDITIONAL_PARALLEL(for (int i = 0; i < rows_; i++) {
         for (size_t j = 0; j < cols_; j++) {
             result[i][j] = values[i][j] - other[i][j];
         }
-    }
+    });
     return result;
 }
 
@@ -129,7 +148,8 @@ Matrix Matrix::operator*(const Matrix& other) const {
     }
 
     Matrix result(rows_, other.cols());
-    for (size_t i = 0; i < rows_; i++) {
+
+    CONDITIONAL_PARALLEL(for (int i = 0; i < rows_; i++) {
         for (size_t j = 0; j < other.cols(); j++) {
             double sum = 0.0;
             for (size_t k = 0; k < cols_; k++) {
@@ -137,7 +157,7 @@ Matrix Matrix::operator*(const Matrix& other) const {
             }
             result[i][j] = sum;
         }
-    }
+    });
     return result;
 }
 
@@ -148,33 +168,36 @@ Vector Matrix::operator*(const Vector& vector) const {
     }
 
     Vector result(rows_);
-    for (size_t i = 0; i < rows_; i++) {
+
+    CONDITIONAL_PARALLEL(for (int i = 0; i < rows_; i++) {
         double sum = 0.0;
         for (size_t j = 0; j < cols_; j++) {
             sum += values[i][j] * vector[j];
         }
         result[i] = sum;
-    }
+    });
     return result;
 }
 
 Matrix Matrix::operator*(double scalar) const {
     Matrix result(rows_, cols_);
-    for (size_t i = 0; i < rows_; i++) {
+
+    CONDITIONAL_PARALLEL(for (int i = 0; i < rows_; i++) {
         for (size_t j = 0; j < cols_; j++) {
             result[i][j] = values[i][j] * scalar;
         }
-    }
+    });
     return result;
 }
 
 Matrix Matrix::transpose() const {
     Matrix result(cols_, rows_);
-    for (size_t i = 0; i < rows_; i++) {
+
+    CONDITIONAL_PARALLEL(for (int i = 0; i < rows_; i++) {
         for (size_t j = 0; j < cols_; j++) {
             result[j][i] = values[i][j];
         }
-    }
+    });
     return result;
 }
 

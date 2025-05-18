@@ -5,6 +5,20 @@
 #include <format>
 
 #include "../Matrix/Matrix.h"
+#include "../config.h"
+
+#ifndef __OMP_PARALLEL_FOR
+#define __OMP_PARALLEL_FOR _Pragma("omp parallel for")
+#endif
+
+#define CONDITIONAL_PARALLEL(for_loop_code)       \
+    if (size_ < PARALLEL_THRESHOLD) {             \
+        /* Serial execution */                    \
+        for_loop_code                             \
+    } else {                                      \
+        /* Parallel execution */                  \
+        _Pragma("omp parallel for") for_loop_code \
+    }
 
 Vector::Vector() : values(nullptr), size_(0) {}
 
@@ -93,9 +107,9 @@ double Vector::dot(const Vector& other) const {
     }
 
     double result = 0;
-    for (size_t i = 0; i < size_; i++) {
-        result += values[i] * other.values[i];
-    }
+
+    CONDITIONAL_PARALLEL(for (int i = 0; i < size_; i++) { result += values[i] * other.values[i]; })
+
     return result;
 }
 
@@ -105,9 +119,9 @@ Vector Vector::operator+(const Vector& other) const {
     }
 
     Vector result(size_);
-    for (size_t i = 0; i < size_; i++) {
-        result.values[i] = values[i] + other.values[i];
-    }
+
+    CONDITIONAL_PARALLEL(
+        for (int i = 0; i < size_; i++) { result.values[i] = values[i] + other.values[i]; });
     return result;
 }
 
@@ -117,17 +131,17 @@ Vector Vector::operator-(const Vector& other) const {
     }
 
     Vector result(size_);
-    for (size_t i = 0; i < size_; i++) {
-        result.values[i] = values[i] - other.values[i];
-    }
+
+    CONDITIONAL_PARALLEL(
+        for (int i = 0; i < size_; i++) { result.values[i] = values[i] - other.values[i]; });
     return result;
 }
 
 Vector Vector::operator*(double scalar) const {
     Vector result(size_);
-    for (size_t i = 0; i < size_; i++) {
-        result.values[i] = values[i] * scalar;
-    }
+
+    CONDITIONAL_PARALLEL(
+        for (int i = 0; i < size_; i++) { result.values[i] = values[i] * scalar; });
     return result;
 }
 
@@ -137,23 +151,24 @@ Vector Vector::elem_mult(const Vector& other) const {
     }
 
     Vector result(size_);
-    for (size_t i = 0; i < size_; i++) {
-        result.values[i] = values[i] * other.values[i];
-    }
+
+    CONDITIONAL_PARALLEL(
+        for (int i = 0; i < size_; i++) { result.values[i] = values[i] * other.values[i]; });
     return result;
 }
 
 Vector Vector::square() const {
     Vector result(size_);
-    for (size_t i = 0; i < size_; i++) {
-        result.values[i] = values[i] * values[i];
-    }
+
+    CONDITIONAL_PARALLEL(
+        for (int i = 0; i < size_; i++) { result.values[i] = values[i] * values[i]; });
     return result;
 }
 
 double Vector::sum() const {
     double result = 0;
-    for (size_t i = 0; i < size_; i++) {
+
+    for (int i = 0; i < size_; i++) {
         result += values[i];
     }
     return result;
@@ -170,19 +185,19 @@ double Vector::norm() const { return std::sqrt(this->square().sum()); }
 
 Matrix Vector::outer_product(const Vector& other) const {
     Matrix result(size_, other.size());
-    for (size_t i = 0; i < size_; i++) {
+
+    CONDITIONAL_PARALLEL(for (int i = 0; i < size_; i++) {
         for (size_t j = 0; j < other.size(); j++) {
             result[i][j] = values[i] * other.values[j];
         }
-    }
+    });
     return result;
 }
 
 Vector Vector::apply(std::function<double(double)> func) const {
     Vector result(size_);
-    for (size_t i = 0; i < size_; i++) {
-        result.values[i] = func(values[i]);
-    }
+
+    CONDITIONAL_PARALLEL(for (int i = 0; i < size_; i++) { result.values[i] = func(values[i]); });
     return result;
 }
 

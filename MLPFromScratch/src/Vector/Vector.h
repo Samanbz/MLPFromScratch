@@ -1,7 +1,5 @@
 #pragma once
 
-#include <device_launch_parameters.h>
-
 #include <functional>
 #include <initializer_list>
 #include <string>
